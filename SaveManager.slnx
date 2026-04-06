@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SaveManager.Application/SaveManager.Application.csproj" />
+    <Project Path="src/SaveManager.Domain/SaveManager.Domain.csproj" Id="3826a6b4-c2bb-4a4b-907f-7c04f5df6bb8" />
+    <Project Path="src/SaveManager.Infrastructure/SaveManager.Infrastructure.csproj" />
+    <Project Path="src/SaveManager.UI/SaveManager.UI.csproj" />
+  </Folder>
+</Solution>
