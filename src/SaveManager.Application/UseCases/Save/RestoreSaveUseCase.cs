@@ -13,7 +13,7 @@ namespace SaveManager.Application.UseCases.Save
 
         public void Execute(Domain.Entities.Game game, Domain.Entities.Save save)
         {
-            _saveFileService.RestoreSave(game, save);
+            _saveFileService.LoadSave(game, save);
         }
     }
 }

@@ -8,9 +8,9 @@ namespace SaveManager.Domain.Interfaces
         Profile CreateProfile(Game game, string profileName);
         void DeleteProfile(Profile profile);
         List<Save> ReadSaves(Profile profile);
-        Save CreateSave(Profile profile, string saveName);
-        void RestoreSave (Game game, Save save);
-        void DeleteSave(Game game, Save save);
-        void ReplaceSave(Game game, Save currentSave, Save newSave);
+        Save CreateSave(Profile profile, Game game);
+        void LoadSave (Game game, Save save);
+        void DeleteSave(Save save);
+        void ReplaceSave(Game game, Save save);
     }
 }
