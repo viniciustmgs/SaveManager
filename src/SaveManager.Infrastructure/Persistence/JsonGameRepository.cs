@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace SaveManager.Infrastructure.Persistence
 {
-    public class JasonGameRepository : IGameRepository
+    public class JsonGameRepository : IGameRepository
     {
         private readonly string _configPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
