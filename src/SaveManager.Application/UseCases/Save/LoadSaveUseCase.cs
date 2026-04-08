@@ -2,11 +2,11 @@
 
 namespace SaveManager.Application.UseCases.Save
 {
-    public class RestoreSaveUseCase
+    public class LoadSaveUseCase
     {
         private readonly ISaveFileService _saveFileService;
 
-        public RestoreSaveUseCase(ISaveFileService saveFileService)
+        public LoadSaveUseCase(ISaveFileService saveFileService)
         {
             _saveFileService = saveFileService;
         }

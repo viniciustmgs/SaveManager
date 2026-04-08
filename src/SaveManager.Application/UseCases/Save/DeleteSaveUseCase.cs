@@ -11,9 +11,9 @@ namespace SaveManager.Application.UseCases.Save
             _saveFileService = saveFileService;
         }
 
-        public void Execute(Domain.Entities.Game game, Domain.Entities.Save save)
+        public void Execute(Domain.Entities.Save save)
         {
-            _saveFileService.DeleteSave(game, save);
+            _saveFileService.DeleteSave(save);
         }
     }
 }

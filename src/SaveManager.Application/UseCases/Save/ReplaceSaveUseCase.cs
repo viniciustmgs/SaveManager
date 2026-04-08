@@ -11,9 +11,9 @@ namespace SaveManager.Application.UseCases.Save
             _saveFileService = saveFileService;
         }
 
-        public void Execute(Domain.Entities.Game game, Domain.Entities.Save currentSave, Domain.Entities.Save newSave)
+        public void Execute(Domain.Entities.Game game, Domain.Entities.Save save)
         {
-            _saveFileService.ReplaceSave(game, currentSave, newSave);
+            _saveFileService.ReplaceSave(game, save);
         }
     }
 }

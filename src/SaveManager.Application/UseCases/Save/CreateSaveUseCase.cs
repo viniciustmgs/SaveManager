@@ -11,12 +11,9 @@ namespace SaveManager.Application.UseCases.Save
             _saveFileService = saveFileService;
         }
 
-        public void Execute(Domain.Entities.Profile profile, string saveName)
+        public Domain.Entities.Save Execute(Domain.Entities.Profile profile, Domain.Entities.Game game)
         {
-            if (string.IsNullOrWhiteSpace(saveName))
-                throw new ArgumentException("O nome do save não pode ser vazio.");
-
-            _saveFileService.CreateSave(profile, saveName);
+            return _saveFileService.CreateSave(profile, game);
         }
     }
 }
