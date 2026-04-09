@@ -5,6 +5,7 @@ using SaveManager.Application.UseCases.Profile;
 using SaveManager.Application.UseCases.Save;
 using SaveManager.Domain.Entities;
 using SaveManager.UI.DI;
+using System;
 using System.Collections.ObjectModel;
 
 namespace SaveManager.UI.ViewModels
@@ -23,6 +24,10 @@ namespace SaveManager.UI.ViewModels
         public ObservableCollection<Profile> Profiles { get; } = [];
         public ObservableCollection<Save> Saves { get; } = [];
 
+        public bool IsGameSelected => SelectedGame != null;
+        public bool IsProfileSelected => SelectedProfile != null;
+        public bool CanManageSaves => SelectedGame != null && SelectedProfile != null;
+
         private Game? _selectedGame;
         public Game? SelectedGame
         {
@@ -31,6 +36,8 @@ namespace SaveManager.UI.ViewModels
             {
                 if (SetProperty(ref _selectedGame, value))
                 {
+                    OnPropertyChanged(nameof(IsGameSelected));
+                    OnPropertyChanged(nameof(CanManageSaves));
                     Profiles.Clear();
                     Saves.Clear();
                     SelectedProfile = null;
@@ -53,6 +60,8 @@ namespace SaveManager.UI.ViewModels
             {
                 if (SetProperty(ref _selectedProfile, value))
                 {
+                    OnPropertyChanged(nameof(IsProfileSelected));
+                    OnPropertyChanged(nameof(CanManageSaves));
                     Saves.Clear();
                     SelectedSave = null;
 
@@ -128,6 +137,24 @@ namespace SaveManager.UI.ViewModels
             var games = _getGames.Execute();
             foreach (var game in games)
                 Games.Add(game);
+        }
+
+        [RelayCommand]
+        private void OpenAddGame()
+        {
+            // dialog será implementado depois
+        }
+
+        [RelayCommand]
+        private void OpenAddProfile()
+        {
+            // dialog será implementado depois
+        }
+
+        [RelayCommand]
+        private void OpenSettings()
+        {
+            // dialog será implementado depois
         }
     }
 }

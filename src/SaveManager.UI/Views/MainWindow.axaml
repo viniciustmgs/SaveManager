@@ -1,0 +1,148 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SaveManager.UI.ViewModels"
+        xmlns:material="using:Material.Icons.Avalonia"
+        x:Class="SaveManager.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="SaveManager"
+        Width="600" Height="700"
+        MinWidth="600" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#282828">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+
+        <!-- Top Panel -->
+        <StackPanel DockPanel.Dock="Top" Margin="12,12,12,0" Spacing="8">
+
+            <!-- Game Row -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Game dropdown e botão Add Game -->
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Game:" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox Width="280"
+                                  ItemsSource="{Binding Games}"
+                                  SelectedItem="{Binding SelectedGame}"
+                                  Background="#333333">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Width="110" Command="{Binding OpenAddGameCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
+                                <TextBlock Text="Add Game" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Coluna * empurra o settings para a direita -->
+
+                <!-- Settings Button -->
+                <Button Grid.Column="2"
+                        Width="40" Height="40"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding OpenSettingsCommand}">
+                    <material:MaterialIcon Kind="Cog" Width="20" Height="20" />
+                </Button>
+            </Grid>
+
+            <!-- Separator -->
+            <Separator Margin="0,4,0,4" />
+
+            <!-- Profile Row -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Profile:" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ComboBox Width="280"
+                              IsEnabled="{Binding IsGameSelected}"
+                              ItemsSource="{Binding Profiles}"
+                              SelectedItem="{Binding SelectedProfile}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Width="110"
+                            IsEnabled="{Binding IsGameSelected}"
+                            Command="{Binding OpenAddProfileCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
+                            <TextBlock Text="Add Profile" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Sort Row (visual only for now) -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Sort by:" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ComboBox Width="120" IsEnabled="{Binding CanManageSaves}" >
+                        <ComboBoxItem Content="Alphabet" IsSelected="True"/>
+                    </ComboBox>
+                    <TextBox Width="280"
+                             IsEnabled="{Binding CanManageSaves}"
+                             Watermark="Search..." />
+                </StackPanel>
+            </StackPanel>
+
+        </StackPanel>
+
+        <!-- Bottom Panel -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                    Margin="12,8,12,12" Spacing="8">
+            <Button Width="120" IsEnabled="{Binding CanManageSaves}" Command="{Binding CreateSaveCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
+                    <TextBlock Text="Create Save" />
+                </StackPanel>
+            </Button>
+            <Button Width="120" IsEnabled="{Binding CanManageSaves}" Command="{Binding LoadSaveCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <material:MaterialIcon Kind="Refresh" Width="16" Height="16" Foreground="#4CAF50" />
+                    <TextBlock Text="Load Save" />
+                </StackPanel>
+            </Button>
+            <Button Width="130" IsEnabled="{Binding CanManageSaves}" Command="{Binding ReplaceSaveCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <material:MaterialIcon Kind="SwapHorizontal" Width="16" Height="16" Foreground="#FF9800" />
+                    <TextBlock Text="Replace Save" />
+                </StackPanel>
+            </Button>
+            <Button Width="120" IsEnabled="{Binding CanManageSaves}" Command="{Binding DeleteSaveCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <material:MaterialIcon Kind="Close" Width="16" Height="16" Foreground="#F44336" />
+                    <TextBlock Text="Delete Save" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- Save List -->
+        <ListBox Margin="12,8,12,0" Background="#424242"
+                 ItemsSource="{Binding Saves}"
+                 SelectedItem="{Binding SelectedSave}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" Padding="4,2" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+    </DockPanel>
+</Window>

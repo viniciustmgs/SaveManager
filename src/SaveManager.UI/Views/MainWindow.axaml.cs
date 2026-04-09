@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace SaveManager.UI
+namespace SaveManager.UI.Views
 {
     public partial class MainWindow : Window
     {

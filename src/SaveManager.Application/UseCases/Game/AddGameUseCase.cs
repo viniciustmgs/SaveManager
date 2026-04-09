@@ -1,4 +1,5 @@
-﻿using SaveManager.Domain.Interfaces;
+﻿using SaveManager.Domain.Enums;
+using SaveManager.Domain.Interfaces;
 
 namespace SaveManager.Application.UseCases.Game
 {
@@ -11,7 +12,7 @@ namespace SaveManager.Application.UseCases.Game
             _gameRepository = gameRepository;
         }
 
-        public void Execute(string name, string saveFolderPath, string backupFolderPath, bool isSingleFile)
+        public void Execute(string name, string saveFolderPath, string backupFolderPath, SaveType saveType)
         {
             //TODO: IMPLEMENTAR UMAS VALIDAÇÕES MELHORES
 
@@ -30,7 +31,7 @@ namespace SaveManager.Application.UseCases.Game
                 Name = name,
                 SaveFolderPath = saveFolderPath,
                 BackupFolderPath = backupFolderPath,
-                IsSingleFile = isSingleFile
+                SaveType = saveType
             };
 
             _gameRepository.Create(game);

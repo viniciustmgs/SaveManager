@@ -1,10 +1,88 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:material="using:Material.Icons.Avalonia"
              x:Class="SaveManager.UI.App"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Dark">
 
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
+	<Application.Styles>
+		<FluentTheme />
+		<material:MaterialIconStyles />
+		<Style Selector="Button">
+            <Setter Property="Background" Value="#333333" />
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,4" />
+        </Style>
+
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#333333" />
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="7,3" />
+        </Style>
+
+        <Style Selector="Button /template/ ContentPresenter">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button:pressed /template/ ContentPresenter">
+            <Setter Property="RenderTransform" Value="scale(0.97)" />
+            <Setter Property="Background" Value="#686868" />
+        </Style>
+
+        <Style Selector="Button /template/ ContentPresenter">
+            <Setter Property="RenderTransform" Value="scale(1)" />
+        </Style>
+
+        <Style Selector="ComboBox">
+        <Setter Property="Background" Value="#333333" />
+        <Setter Property="BorderBrush" Value="#686868" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Foreground" Value="White" />
+        </Style>
+
+        <!-- ComboBox hover -->
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="Background" Value="#333333" />
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <!-- ComboBox selected with dropdown open -->
+        <Style Selector="ComboBox[IsDropDownOpen=True] /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <!-- ComboBox on focus but dropdown not open -->
+        <Style Selector="ComboBox:focus:not[IsDropDownOpen=True] /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <!-- Dropdown do ComboBox -->
+        <Style Selector="ComboBoxItem /template/ ContentPresenter">
+            <Setter Property="Background" Value="#333333" />
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <!-- Dropdown hover -->
+        <Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#333333" />
+        </Style>
+
+        <!-- Item selecionado -->
+        <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#333333" />
+        </Style>
+	</Application.Styles>
 </Application>

@@ -1,4 +1,5 @@
-﻿using SaveManager.Domain.Interfaces;
+﻿using SaveManager.Domain.Enums;
+using SaveManager.Domain.Interfaces;
 
 namespace SaveManager.Application.UseCases.Game
 {
@@ -11,7 +12,7 @@ namespace SaveManager.Application.UseCases.Game
             _gameRepository = gameRepository;
         }
 
-        public void Execute(Guid gameId, string name, string saveFolderPath, string backupFolderPath, bool isSingleFile)
+        public void Execute(Guid gameId, string name, string saveFolderPath, string backupFolderPath, SaveType saveType)
         {
             var game = _gameRepository.GetById(gameId);
 
@@ -32,7 +33,7 @@ namespace SaveManager.Application.UseCases.Game
             game.Name = name;
             game.SaveFolderPath = saveFolderPath;
             game.BackupFolderPath = backupFolderPath;
-            game.IsSingleFile = isSingleFile;
+            game.SaveType = saveType;
 
             _gameRepository.Update(game);
         }
