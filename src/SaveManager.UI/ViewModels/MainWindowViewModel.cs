@@ -5,8 +5,11 @@ using SaveManager.Application.UseCases.Profile;
 using SaveManager.Application.UseCases.Save;
 using SaveManager.Domain.Entities;
 using SaveManager.UI.DI;
+using SaveManager.UI.ViewModels.Dialogs;
+using SaveManager.UI.Views.Dialogs;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace SaveManager.UI.ViewModels
 {
@@ -19,6 +22,9 @@ namespace SaveManager.UI.ViewModels
         private readonly LoadSaveUseCase _loadSave;
         private readonly ReplaceSaveUseCase _replaceSave;
         private readonly DeleteSaveUseCase _deleteSave;
+        private readonly AddGameUseCase _addGame;
+
+        public ToastViewModel Toast { get; } = new();
 
         public ObservableCollection<Game> Games { get; } = [];
         public ObservableCollection<Profile> Profiles { get; } = [];
@@ -27,6 +33,7 @@ namespace SaveManager.UI.ViewModels
         public bool IsGameSelected => SelectedGame != null;
         public bool IsProfileSelected => SelectedProfile != null;
         public bool CanManageSaves => SelectedGame != null && SelectedProfile != null;
+        public bool IsSaveSelected => SelectedSave != null;
 
         private Game? _selectedGame;
         public Game? SelectedGame
@@ -78,7 +85,11 @@ namespace SaveManager.UI.ViewModels
         public Save? SelectedSave
         {
             get => _selectedSave;
-            set => SetProperty(ref _selectedSave, value);
+            set
+            {
+                if (SetProperty(ref _selectedSave, value))
+                    OnPropertyChanged(nameof(IsSaveSelected));
+            }
         }
 
         public MainWindowViewModel()
@@ -90,33 +101,58 @@ namespace SaveManager.UI.ViewModels
             _loadSave = AppServiceProvider.GetService<LoadSaveUseCase>();
             _replaceSave = AppServiceProvider.GetService<ReplaceSaveUseCase>();
             _deleteSave = AppServiceProvider.GetService<DeleteSaveUseCase>();
+            _addGame = AppServiceProvider.GetService<AddGameUseCase>();
 
             LoadGames();
         }
 
         [RelayCommand]
-        private void CreateSave()
+        private async Task CreateSave()
         {
             if (SelectedGame == null || SelectedProfile == null) return;
 
-            var save = _createSave.Execute(SelectedProfile, SelectedGame);
-            Saves.Add(save);
+            try
+            {
+                var save = _createSave.Execute(SelectedProfile, SelectedGame);
+                Saves.Add(save);
+                await Toast.Show("Save created successfully!", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to create save: {ex.Message}", isSuccess: false);
+            }
         }
 
         [RelayCommand]
-        private void LoadSave()
+        private async Task LoadSave()
         {
             if (SelectedGame == null || SelectedSave == null) return;
 
-            _loadSave.Execute(SelectedGame, SelectedSave);
+            try
+            {
+                _loadSave.Execute(SelectedGame, SelectedSave);
+                await Toast.Show("Save loaded successfully!", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to load save: {ex.Message}", isSuccess: false);
+            }
         }
 
         [RelayCommand]
-        private void ReplaceSave()
+        private async Task ReplaceSave()
         {
             if (SelectedGame == null || SelectedSave == null) return;
 
-            _replaceSave.Execute(SelectedGame, SelectedSave);
+            try
+            {
+                _replaceSave.Execute(SelectedGame, SelectedSave);
+                await Toast.Show("Save replaced successfully!", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to replace save: {ex.Message}", isSuccess: false);
+            }
         }
 
         [RelayCommand]
@@ -140,9 +176,20 @@ namespace SaveManager.UI.ViewModels
         }
 
         [RelayCommand]
-        private void OpenAddGame()
+        private async Task OpenAddGame()
         {
-            // dialog será implementado depois
+            var dialog = new AddGameDialog();
+            await dialog.ShowDialog(App.Current?.ApplicationLifetime is
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+                ? desktop.MainWindow
+                : null);
+
+            var result = (dialog.DataContext as AddGameDialogViewModel)?.Result;
+
+            if (result == null) return;
+
+            _addGame.Execute(result.Value.Name, result.Value.SavePath, result.Value.BackupPath, result.Value.SaveType);
+            LoadGames();
         }
 
         [RelayCommand]

@@ -51,105 +51,116 @@ namespace SaveManager.Infrastructure.FileSystem
             if (!Directory.Exists(profile.FolderPath))
                 return [];
 
-            return Directory
+            var saves = new List<Save>();
+
+            // Arquivos diretos (SingleFile)
+            saves.AddRange(Directory
+                .GetFiles(profile.FolderPath)
+                .Select(path => new Save
+                {
+                    Name = Path.GetFileName(path),
+                    SavePath = path,
+                    CreatedAt = File.GetCreationTime(path)
+                }));
+
+            // Subpastas (Folder)
+            saves.AddRange(Directory
                 .GetDirectories(profile.FolderPath)
                 .Select(path => new Save
                 {
                     Name = Path.GetFileName(path),
-                    FolderPath = path,
+                    SavePath = path,
                     CreatedAt = Directory.GetCreationTime(path)
-                })
-                .ToList();
+                }));
+
+            return saves;
         }
 
         public Save CreateSave(Profile profile, Game game)
         {
             var saveName = SaveNameGenerator.Generate(profile, game);
-            var savePath = Path.Combine(profile.FolderPath, saveName);
-
-            Directory.CreateDirectory(savePath);
 
             if (game.SaveType == SaveType.SingleFile)
             {
-                var file = Directory.GetFiles(game.SaveFolderPath).FirstOrDefault();
-
-                if (file == null)
+                if (!File.Exists(game.SaveFolderPath))
                     throw new ArgumentException("No save file found");
 
-                File.Copy(file, Path.Combine(savePath, Path.GetFileName(file)), overwrite: true);
+                var savePath = Path.Combine(profile.FolderPath, saveName);
+                File.Copy(game.SaveFolderPath, savePath, overwrite: true);
+
+                return new Save
+                {
+                    Name = saveName,
+                    SavePath = savePath,
+                    CreatedAt = File.GetCreationTime(savePath)
+                };
             }
             else
             {
+                var savePath = Path.Combine(profile.FolderPath, saveName);
                 CopyDirectory(game.SaveFolderPath, savePath);
-            }
 
-            return new Save
-            {
-                Name = saveName,
-                FolderPath = savePath,
-                CreatedAt = Directory.GetCreationTime(savePath)
-            };
+                return new Save
+                {
+                    Name = saveName,
+                    SavePath = savePath,
+                    CreatedAt = Directory.GetCreationTime(savePath)
+                };
+            }
         }
 
         public void LoadSave(Game game, Save save)
         {
-            if (!Directory.Exists(save.FolderPath))
-                throw new ArgumentException("Save não encontrado.");
-
-            string? originalFileName = null;
-
             if (game.SaveType == SaveType.SingleFile)
             {
-                var originalFile = Directory.GetFiles(game.SaveFolderPath).FirstOrDefault();
-                originalFileName = originalFile != null ? Path.GetFileName(originalFile) : null;
-            }
+                if (!File.Exists(save.SavePath))
+                    throw new ArgumentException("Save file not found");
 
-            ClearDirectory(game.SaveFolderPath);
-
-            if (game.SaveType == SaveType.SingleFile)
-            {
-                var file = Directory.GetFiles(save.FolderPath).FirstOrDefault();
-
-                if (file == null)
-                    throw new ArgumentException("Nenhum arquivo encontrado no save.");
-
-                var destFileName = originalFileName ?? Path.GetFileName(file);
-                File.Copy(file, Path.Combine(game.SaveFolderPath, destFileName), overwrite: true);
+                File.Copy(save.SavePath, game.SaveFolderPath, overwrite: true);
             }
             else
             {
-                CopyDirectory(save.FolderPath, game.SaveFolderPath);
+                if (!Directory.Exists(save.SavePath))
+                    throw new ArgumentException("Save folder not found");
+
+                ClearDirectory(game.SaveFolderPath);
+                CopyDirectory(save.SavePath, game.SaveFolderPath);
             }
         }
 
         public void ReplaceSave(Game game, Save save)
         {
-            if (!Directory.Exists(save.FolderPath))
-                throw new ArgumentException("Save not found");
-
-            ClearDirectory(save.FolderPath);
-
             if (game.SaveType == SaveType.SingleFile)
             {
-                var file = Directory.GetFiles(game.SaveFolderPath).FirstOrDefault();
+                if (!File.Exists(game.SaveFolderPath))
+                    throw new ArgumentException("No save file found");
 
-                if (file == null)
-                    throw new ArgumentException("No save found");
-
-                File.Copy(file, Path.Combine(save.FolderPath, Path.GetFileName(file)), overwrite: true);
+                File.Copy(game.SaveFolderPath, save.SavePath, overwrite: true);
             }
             else
             {
-                CopyDirectory(game.SaveFolderPath, save.FolderPath);
+                if (!Directory.Exists(save.SavePath))
+                    throw new ArgumentException("Save folder not found");
+
+                ClearDirectory(save.SavePath);
+                CopyDirectory(game.SaveFolderPath, save.SavePath);
             }
         }
 
         public void DeleteSave(Save save)
         {
-            if (!Directory.Exists(save.FolderPath))
+            if (File.Exists(save.SavePath))
+            {
+                File.Delete(save.SavePath);
+            }
+            else if (Directory.Exists(save.SavePath))
+            {
+                Directory.Delete(save.SavePath, recursive: true);
+            }
+            else
+            {
                 throw new ArgumentException("Save not found");
-
-            Directory.Delete(save.FolderPath, recursive: true);
+            }
         }
 
         private void CopyDirectory(string sourcePath, string destinationPath)

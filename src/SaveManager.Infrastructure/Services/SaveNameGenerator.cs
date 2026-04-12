@@ -7,34 +7,44 @@ namespace SaveManager.Infrastructure.Services
     {
         public static string Generate(Profile profile, Game game)
         {
-            string baseName;
-
             if (game.SaveType == SaveType.SingleFile)
             {
-                var file = Directory.GetFiles(game.SaveFolderPath).FirstOrDefault();
+                var fileName = Path.GetFileNameWithoutExtension(game.SaveFolderPath);
+                var extension = Path.GetExtension(game.SaveFolderPath);
 
-                if (file == null)
-                    throw new ArgumentException("No save file found");
+                var existingFiles = Directory.GetFiles(profile.FolderPath)
+                    .Select(Path.GetFileName)
+                    .ToList();
 
-                baseName = Path.GetFileName(file);
+                // tries the original name first
+                var baseName = $"{fileName}{extension}";
+                if (!existingFiles.Contains(baseName))
+                    return baseName;
+
+                // if exists, add index
+                var index = 0;
+                while (existingFiles.Contains($"{fileName}_{index}{extension}"))
+                    index++;
+
+                return $"{fileName}_{index}{extension}";
             }
             else
             {
-                baseName = Path.GetFileName(game.SaveFolderPath.TrimEnd(Path.DirectorySeparatorChar));
+                var baseName = Path.GetFileName(game.SaveFolderPath.TrimEnd(Path.DirectorySeparatorChar));
+
+                var existingSaves = Directory.GetDirectories(profile.FolderPath)
+                    .Select(Path.GetFileName)
+                    .ToList();
+
+                if (!existingSaves.Contains(baseName))
+                    return baseName;
+
+                var index = 0;
+                while (existingSaves.Contains($"{baseName}_{index}"))
+                    index++;
+
+                return $"{baseName}_{index}";
             }
-
-            var existingSaves = Directory.GetDirectories(profile.FolderPath);
-
-            var hasBase = existingSaves.Any(s => Path.GetFileName(s) == baseName);
-
-            if (!hasBase)
-                return baseName;
-
-            var index = 0;
-            while (existingSaves.Any(s => Path.GetFileName(s) == $"{baseName}_{index}"))
-                index++;
-
-            return $"{baseName}_{index}";
         }
     }
 }

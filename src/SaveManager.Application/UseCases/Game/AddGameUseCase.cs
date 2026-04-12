@@ -14,13 +14,19 @@ namespace SaveManager.Application.UseCases.Game
 
         public void Execute(string name, string saveFolderPath, string backupFolderPath, SaveType saveType)
         {
-            //TODO: IMPLEMENTAR UMAS VALIDAÇÕES MELHORES
-
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("The name of the game must not be empty.");
 
-            if (!Directory.Exists(saveFolderPath))
-                throw new ArgumentException("The save file doesn't exist");
+            if (saveType == SaveType.SingleFile)
+            {
+                if (!File.Exists(saveFolderPath))
+                    throw new ArgumentException("The save file doesn't exist");
+            }
+            else
+            {
+                if (!Directory.Exists(saveFolderPath))
+                    throw new ArgumentException("The save folder doesn't exist");
+            }
 
             if (!Directory.Exists(backupFolderPath))
                 throw new ArgumentException("The backup folder doesn't exist");

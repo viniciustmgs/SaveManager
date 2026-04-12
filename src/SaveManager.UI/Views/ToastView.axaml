@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaveManager.UI.ViewModels"
+             x:Class="SaveManager.UI.Views.ToastView"
+             x:DataType="vm:ToastViewModel"
+             IsVisible="{Binding IsVisible}"
+             IsHitTestVisible="False">
+
+    <Grid>
+        <!-- Success toast -->
+        <Border CornerRadius="8"
+                Padding="16,10"
+                MaxWidth="300"
+                Background="#333333"
+                BorderBrush="#4CAF50"
+                BorderThickness="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsVisible="{Binding IsSuccess}">
+            <TextBlock Text="{Binding Message}"
+                       Foreground="White"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+        </Border>
+
+        <!-- error toast -->
+        <Border CornerRadius="8"
+                Padding="16,10"
+                MaxWidth="300"
+                Background="#333333"
+                BorderBrush="#F44336"
+                BorderThickness="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsVisible="{Binding !IsSuccess}">
+            <TextBlock Text="{Binding Message}"
+                       Foreground="White"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>
