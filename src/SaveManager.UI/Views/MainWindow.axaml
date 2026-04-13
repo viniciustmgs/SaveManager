@@ -18,10 +18,10 @@
     <Grid>
         <DockPanel>
 
-            <!-- Top Panel -->
+            <!-- top panel -->
             <StackPanel DockPanel.Dock="Top" Margin="12,12,12,0" Spacing="8">
 
-                <!-- Game Row -->
+                <!-- game row -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -29,7 +29,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Game dropdown e botão Add Game -->
+                    <!-- game dropdown and add game button -->
                     <StackPanel Grid.Column="0" Spacing="4">
                         <TextBlock Text="Game:" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -52,9 +52,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Coluna * empurra o settings para a direita -->
+                    <!-- column * pushes settings to the right -->
 
-                    <!-- Settings Button -->
+                    <!-- settings button -->
                     <Button Grid.Column="2"
                             Width="40" Height="40"
                             VerticalAlignment="Bottom"
@@ -63,10 +63,10 @@
                     </Button>
                 </Grid>
 
-                <!-- Separator -->
+                <!-- separator -->
                 <Separator Margin="0,4,0,4" />
 
-                <!-- Profile Row -->
+                <!-- profile row -->
                 <StackPanel Spacing="4">
                     <TextBlock Text="Profile:" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -91,7 +91,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Sort Row (visual only for now) -->
+                <!-- sort row (visual only for now) -->
                 <StackPanel Spacing="4">
                     <TextBlock Text="Sort by:" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -106,7 +106,7 @@
 
             </StackPanel>
 
-            <!-- Bottom Panel -->
+            <!-- bottom panel -->
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
                         Margin="12,8,12,12" Spacing="8">
                 <Button Width="120" IsEnabled="{Binding CanManageSaves}" Command="{Binding CreateSaveCommand}">
@@ -135,7 +135,7 @@
                 </Button>
             </StackPanel>
 
-            <!-- Save List -->
+            <!-- save list -->
             <ListBox Margin="12,8,12,0" Background="#424242"
                      ItemsSource="{Binding Saves}"
                      SelectedItem="{Binding SelectedSave}">

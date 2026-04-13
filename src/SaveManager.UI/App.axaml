@@ -48,26 +48,26 @@
         <Setter Property="Foreground" Value="White" />
         </Style>
 
-        <!-- ComboBox hover -->
+        <!-- comboBox hover -->
         <Style Selector="ComboBox:pointerover /template/ Border#Background">
             <Setter Property="Background" Value="#333333" />
             <Setter Property="BorderBrush" Value="#686868" />
             <Setter Property="BorderThickness" Value="2" />
         </Style>
 
-        <!-- ComboBox selected with dropdown open -->
+        <!-- comboBox selected with dropdown open -->
         <Style Selector="ComboBox[IsDropDownOpen=True] /template/ Border#Background">
             <Setter Property="BorderBrush" Value="#686868" />
             <Setter Property="BorderThickness" Value="2" />
         </Style>
 
-        <!-- ComboBox on focus but dropdown not open -->
+        <!-- comboBox on focus but dropdown not open -->
         <Style Selector="ComboBox:focus:not[IsDropDownOpen=True] /template/ Border#Background">
             <Setter Property="BorderBrush" Value="#686868" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
-        <!-- Dropdown do ComboBox -->
+        <!-- ComboBox dropdown -->
         <Style Selector="ComboBoxItem /template/ ContentPresenter">
             <Setter Property="Background" Value="#333333" />
             <Setter Property="BorderBrush" Value="#686868" />
@@ -75,14 +75,30 @@
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
-        <!-- Dropdown hover -->
+        <!-- dropdown hover -->
         <Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#333333" />
         </Style>
 
-        <!-- Item selecionado -->
+        <!-- Item selected -->
         <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
             <Setter Property="Background" Value="#333333" />
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#686868" />
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
 	</Application.Styles>
 </Application>

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SaveManager.Application.UseCases.Game;
 using SaveManager.Application.UseCases.Profile;
@@ -23,6 +24,7 @@ namespace SaveManager.UI.ViewModels
         private readonly ReplaceSaveUseCase _replaceSave;
         private readonly DeleteSaveUseCase _deleteSave;
         private readonly AddGameUseCase _addGame;
+        private readonly CreateProfileUseCase _createProfile;
 
         public ToastViewModel Toast { get; } = new();
 
@@ -74,7 +76,7 @@ namespace SaveManager.UI.ViewModels
 
                     if (value == null || SelectedGame == null) return;
 
-                    var saves = _getSaves.Execute(value);
+                    var saves = _getSaves.Execute(value, SelectedGame);
                     foreach (var save in saves)
                         Saves.Add(save);
                 }
@@ -102,6 +104,7 @@ namespace SaveManager.UI.ViewModels
             _replaceSave = AppServiceProvider.GetService<ReplaceSaveUseCase>();
             _deleteSave = AppServiceProvider.GetService<DeleteSaveUseCase>();
             _addGame = AppServiceProvider.GetService<AddGameUseCase>();
+            _createProfile = AppServiceProvider.GetService<CreateProfileUseCase>();
 
             LoadGames();
         }
@@ -175,17 +178,24 @@ namespace SaveManager.UI.ViewModels
                 Games.Add(game);
         }
 
+        private async Task OpenDialog(Window dialog)
+        {
+            var mainWindow = (App.Current?.ApplicationLifetime as
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)
+                ?.MainWindow;
+
+            if (mainWindow == null) return;
+
+            await dialog.ShowDialog(mainWindow);
+        }
+
         [RelayCommand]
         private async Task OpenAddGame()
         {
             var dialog = new AddGameDialog();
-            await dialog.ShowDialog(App.Current?.ApplicationLifetime is
-                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-                ? desktop.MainWindow
-                : null);
+            await OpenDialog(dialog);
 
             var result = (dialog.DataContext as AddGameDialogViewModel)?.Result;
-
             if (result == null) return;
 
             _addGame.Execute(result.Value.Name, result.Value.SavePath, result.Value.BackupPath, result.Value.SaveType);
@@ -193,9 +203,22 @@ namespace SaveManager.UI.ViewModels
         }
 
         [RelayCommand]
-        private void OpenAddProfile()
+        private async Task OpenAddProfile()
         {
-            // dialog será implementado depois
+            if (SelectedGame == null) return;
+
+            var dialog = new AddProfileDialog();
+            await OpenDialog(dialog);
+
+            var result = (dialog.DataContext as AddProfileDialogViewModel)?.Result;
+            if (result == null) return;
+
+            _createProfile.Execute(SelectedGame.Id, result);
+
+            var profiles = _getProfiles.Execute(SelectedGame);
+            Profiles.Clear();
+            foreach (var profile in profiles)
+                Profiles.Add(profile);
         }
 
         [RelayCommand]

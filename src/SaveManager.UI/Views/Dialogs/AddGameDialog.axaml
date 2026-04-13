@@ -8,17 +8,18 @@
         Width="400"
         SizeToContent="Height"
         CanResize="False"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="#282828">
 
     <StackPanel Margin="16" Spacing="12">
 
-        <!-- Name -->
+        <!-- name -->
         <StackPanel Spacing="4">
             <TextBlock Text="Name:" />
-            <TextBox Text="{Binding Name}" />
+            <TextBox Text="{Binding Name}" Background="#333333" />
         </StackPanel>
 
-        <!-- Save Type -->
+        <!-- save type -->
         <StackPanel Spacing="4">
             <TextBlock Text="Save type:" />
             <StackPanel Orientation="Horizontal" Spacing="24" Margin="8,0,0,0">
@@ -27,14 +28,16 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Save Path -->
+        <!-- save path -->
         <StackPanel Spacing="4">
             <TextBlock Text="Save Path:" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Width="280"
+                <TextBox x:Name="SavePathBox"
+                         Width="280"
                          IsReadOnly="True"
-                         IsEnabled="{Binding IsSaveTypeSelected}"
-                         Text="{Binding SavePath}" />
+                         IsEnabled="False"
+                         Text="{Binding SavePath}"
+                         TextAlignment="Right"/>
                 <Button Width="80"
                         IsEnabled="{Binding IsSaveTypeSelected}"
                         Command="{Binding BrowseSavePathCommand}">
@@ -46,14 +49,16 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Backup Path -->
+        <!-- backup path -->
         <StackPanel Spacing="4">
             <TextBlock Text="Backup Path:" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Width="280"
+                <TextBox x:Name="BackupPathBox"
+                         Width="280"
                          IsReadOnly="True"
-                         IsEnabled="{Binding IsSaveTypeSelected}"
-                         Text="{Binding BackupPath}" />
+                         IsEnabled="False"
+                         Text="{Binding BackupPath}"
+                         TextAlignment="Right"/>
                 <Button Width="80"
                         IsEnabled="{Binding IsSaveTypeSelected}"
                         Command="{Binding BrowseBackupPathCommand}">
@@ -65,13 +70,13 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Error Message -->
+        <!-- error message -->
         <TextBlock Text="{Binding ErrorMessage}"
                    Foreground="#F44336"
                    IsVisible="{Binding HasError}"
                    TextWrapping="Wrap" />
 
-        <!-- Buttons -->
+        <!-- buttons -->
         <Grid Margin="0,8,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />

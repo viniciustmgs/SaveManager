@@ -46,34 +46,35 @@ namespace SaveManager.Infrastructure.FileSystem
             Directory.Delete(profile.FolderPath, recursive: true);
         }
 
-        public List<Save> ReadSaves(Profile profile)
+        public List<Save> ReadSaves(Profile profile, Game game)
         {
             if (!Directory.Exists(profile.FolderPath))
                 return [];
 
-            var saves = new List<Save>();
-
-            // Arquivos diretos (SingleFile)
-            saves.AddRange(Directory
-                .GetFiles(profile.FolderPath)
-                .Select(path => new Save
-                {
-                    Name = Path.GetFileName(path),
-                    SavePath = path,
-                    CreatedAt = File.GetCreationTime(path)
-                }));
-
-            // Subpastas (Folder)
-            saves.AddRange(Directory
-                .GetDirectories(profile.FolderPath)
-                .Select(path => new Save
-                {
-                    Name = Path.GetFileName(path),
-                    SavePath = path,
-                    CreatedAt = Directory.GetCreationTime(path)
-                }));
-
-            return saves;
+            if (game.SaveType == SaveType.SingleFile)
+            {
+                return Directory
+                    .GetFiles(profile.FolderPath)
+                    .Select(path => new Save
+                    {
+                        Name = Path.GetFileName(path),
+                        SavePath = path,
+                        CreatedAt = File.GetCreationTime(path)
+                    })
+                    .ToList();
+            }
+            else
+            {
+                return Directory
+                    .GetDirectories(profile.FolderPath)
+                    .Select(path => new Save
+                    {
+                        Name = Path.GetFileName(path),
+                        SavePath = path,
+                        CreatedAt = Directory.GetCreationTime(path)
+                    })
+                    .ToList();
+            }
         }
 
         public Save CreateSave(Profile profile, Game game)

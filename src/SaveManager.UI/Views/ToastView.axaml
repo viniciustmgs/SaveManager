@@ -7,7 +7,7 @@
              IsHitTestVisible="False">
 
     <Grid>
-        <!-- Success toast -->
+        <!-- success toast -->
         <Border CornerRadius="8"
                 Padding="16,10"
                 MaxWidth="300"

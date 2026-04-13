@@ -14,6 +14,21 @@ namespace SaveManager.UI.Views.Dialogs
             viewModel.RequestClose += Close;
 
             DataContext = viewModel;
+
+            viewModel.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(AddGameDialogViewModel.SavePath))
+                    ScrollToEnd(SavePathBox);
+
+                if (e.PropertyName == nameof(AddGameDialogViewModel.BackupPath))
+                    ScrollToEnd(BackupPathBox);
+            };
+        }
+
+        private void ScrollToEnd(TextBox? textBox)
+        {
+            if (textBox == null) return;
+            textBox.CaretIndex = textBox.Text?.Length ?? 0;
         }
     }
 }

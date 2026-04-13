@@ -11,9 +11,9 @@ namespace SaveManager.Application.UseCases.Save
             _saveFileService = saveFileService;
         }
 
-        public List<Domain.Entities.Save> Execute(Domain.Entities.Profile profile)
+        public List<Domain.Entities.Save> Execute(Domain.Entities.Profile profile, Domain.Entities.Game game)
         {
-            return _saveFileService.ReadSaves(profile);
+            return _saveFileService.ReadSaves(profile, game);
         }
     }
 }
