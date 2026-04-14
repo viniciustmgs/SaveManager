@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SaveManager.Application\SaveManager.Application.csproj" />
     <ProjectReference Include="..\SaveManager.Domain\SaveManager.Domain.csproj" />
   </ItemGroup>
 
