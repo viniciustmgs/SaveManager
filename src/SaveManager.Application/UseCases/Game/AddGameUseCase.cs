@@ -35,7 +35,7 @@ namespace SaveManager.Application.UseCases.Game
             {
                 Id = Guid.NewGuid(),
                 Name = name,
-                SaveFolderPath = saveFolderPath,
+                SavePath = saveFolderPath,
                 BackupFolderPath = backupFolderPath,
                 SaveType = saveType
             };

@@ -6,7 +6,7 @@ namespace SaveManager.Domain.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string SaveFolderPath { get; set; } = string.Empty;
+        public string SavePath { get; set; } = string.Empty;
         public string BackupFolderPath {  get; set; } = string.Empty;
         public SaveType SaveType { get; set; }
     }

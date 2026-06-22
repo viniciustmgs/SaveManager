@@ -9,8 +9,8 @@ namespace SaveManager.Infrastructure.Services
         {
             if (game.SaveType == SaveType.SingleFile)
             {
-                var fileName = Path.GetFileNameWithoutExtension(game.SaveFolderPath);
-                var extension = Path.GetExtension(game.SaveFolderPath);
+                var fileName = Path.GetFileNameWithoutExtension(game.SavePath);
+                var extension = Path.GetExtension(game.SavePath);
 
                 var existingFiles = Directory.GetFiles(profile.FolderPath)
                     .Select(Path.GetFileName)
@@ -30,7 +30,7 @@ namespace SaveManager.Infrastructure.Services
             }
             else
             {
-                var baseName = Path.GetFileName(game.SaveFolderPath.TrimEnd(Path.DirectorySeparatorChar));
+                var baseName = Path.GetFileName(game.SavePath.TrimEnd(Path.DirectorySeparatorChar));
 
                 var existingSaves = Directory.GetDirectories(profile.FolderPath)
                     .Select(Path.GetFileName)

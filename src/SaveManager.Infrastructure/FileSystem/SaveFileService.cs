@@ -83,11 +83,11 @@ namespace SaveManager.Infrastructure.FileSystem
 
             if (game.SaveType == SaveType.SingleFile)
             {
-                if (!File.Exists(game.SaveFolderPath))
+                if (!File.Exists(game.SavePath))
                     throw new ArgumentException("No save file found");
 
                 var savePath = Path.Combine(profile.FolderPath, saveName);
-                File.Copy(game.SaveFolderPath, savePath, overwrite: true);
+                File.Copy(game.SavePath, savePath, overwrite: true);
 
                 return new Save
                 {
@@ -99,7 +99,7 @@ namespace SaveManager.Infrastructure.FileSystem
             else
             {
                 var savePath = Path.Combine(profile.FolderPath, saveName);
-                CopyDirectory(game.SaveFolderPath, savePath);
+                CopyDirectory(game.SavePath, savePath);
 
                 return new Save
                 {
@@ -117,15 +117,15 @@ namespace SaveManager.Infrastructure.FileSystem
                 if (!File.Exists(save.SavePath))
                     throw new ArgumentException("Save file not found");
 
-                File.Copy(save.SavePath, game.SaveFolderPath, overwrite: true);
+                File.Copy(save.SavePath, game.SavePath, overwrite: true);
             }
             else
             {
                 if (!Directory.Exists(save.SavePath))
                     throw new ArgumentException("Save folder not found");
 
-                ClearDirectory(game.SaveFolderPath);
-                CopyDirectory(save.SavePath, game.SaveFolderPath);
+                ClearDirectory(game.SavePath);
+                CopyDirectory(save.SavePath, game.SavePath);
             }
         }
 
@@ -133,10 +133,10 @@ namespace SaveManager.Infrastructure.FileSystem
         {
             if (game.SaveType == SaveType.SingleFile)
             {
-                if (!File.Exists(game.SaveFolderPath))
+                if (!File.Exists(game.SavePath))
                     throw new ArgumentException("No save file found");
 
-                File.Copy(game.SaveFolderPath, save.SavePath, overwrite: true);
+                File.Copy(game.SavePath, save.SavePath, overwrite: true);
             }
             else
             {
@@ -144,7 +144,7 @@ namespace SaveManager.Infrastructure.FileSystem
                     throw new ArgumentException("Save folder not found");
 
                 ClearDirectory(save.SavePath);
-                CopyDirectory(game.SaveFolderPath, save.SavePath);
+                CopyDirectory(game.SavePath, save.SavePath);
             }
         }
 

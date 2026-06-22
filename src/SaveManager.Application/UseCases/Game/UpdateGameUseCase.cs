@@ -31,7 +31,7 @@ namespace SaveManager.Application.UseCases.Game
                 throw new ArgumentException("The backup folder doesn't exist");
 
             game.Name = name;
-            game.SaveFolderPath = saveFolderPath;
+            game.SavePath = saveFolderPath;
             game.BackupFolderPath = backupFolderPath;
             game.SaveType = saveType;
 
