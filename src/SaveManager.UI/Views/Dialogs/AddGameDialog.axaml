@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SaveManager.UI.ViewModels.Dialogs"
         xmlns:material="using:Material.Icons.Avalonia"
+        xmlns:controls="using:SaveManager.UI.Views.Controls"
         x:Class="SaveManager.UI.Views.Dialogs.AddGameDialog"
         x:DataType="vm:AddGameDialogViewModel"
         Title="Add Game"
@@ -9,98 +10,104 @@
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="#282828">
+        Background="#282828"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowDecorations="BorderOnly">
 
-    <StackPanel Margin="16" Spacing="12">
+    <DockPanel>
+        <controls:TitleBar DockPanel.Dock="Top" ShowMinimizeButton="False" ShowMaximizeButton="False" />
+        <StackPanel Margin="16" Spacing="12">
 
-        <!-- name -->
-        <StackPanel Spacing="4">
-            <TextBlock Text="Name:" />
-            <TextBox Text="{Binding Name}" Background="#333333" />
-        </StackPanel>
-
-        <!-- save type -->
-        <StackPanel Spacing="4">
-            <TextBlock Text="Save type:" />
-            <StackPanel Orientation="Horizontal" Spacing="24" Margin="8,0,0,0">
-                <CheckBox Content="Single File" IsChecked="{Binding IsSingleFile}" />
-                <CheckBox Content="Folder" IsChecked="{Binding IsFolder}" />
+            <!-- name -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Name:" />
+                <TextBox Text="{Binding Name}" Background="#333333" />
             </StackPanel>
-        </StackPanel>
 
-        <!-- save path -->
-        <StackPanel Spacing="4">
-            <TextBlock Text="Save Path:" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox x:Name="SavePathBox"
-                         Width="280"
-                         IsReadOnly="True"
-                         IsEnabled="False"
-                         Text="{Binding SavePath}"
-                         TextAlignment="Right"/>
-                <Button Width="80"
-                        IsEnabled="{Binding IsSaveTypeSelected}"
-                        Command="{Binding BrowseSavePathCommand}">
+            <!-- save type -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Save type:" />
+                <StackPanel Orientation="Horizontal" Spacing="24" Margin="8,0,0,0">
+                    <CheckBox Content="Single File" IsChecked="{Binding IsSingleFile}" />
+                    <CheckBox Content="Folder" IsChecked="{Binding IsFolder}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- save path -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Save Path:" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBox x:Name="SavePathBox"
+                             Width="280"
+                             IsReadOnly="True"
+                             IsEnabled="False"
+                             Text="{Binding SavePath}"
+                             TextAlignment="Right"/>
+                    <Button Width="80"
+                            IsEnabled="{Binding IsSaveTypeSelected}"
+                            Command="{Binding BrowseSavePathCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
+                            <TextBlock Text="Search" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- backup path -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Backup Path:" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBox x:Name="BackupPathBox"
+                             Width="280"
+                             IsReadOnly="True"
+                             IsEnabled="False"
+                             Text="{Binding BackupPath}"
+                             TextAlignment="Right"/>
+                    <Button Width="80"
+                            IsEnabled="{Binding IsSaveTypeSelected}"
+                            Command="{Binding BrowseBackupPathCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
+                            <TextBlock Text="Search" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- error message -->
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="#F44336"
+                       IsVisible="{Binding HasError}"
+                       TextWrapping="Wrap" />
+
+            <!-- buttons -->
+            <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Width="110"
+                        Command="{Binding CancelCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
-                        <TextBlock Text="Search" />
+                        <material:MaterialIcon Kind="Close" Width="16" Height="16" Foreground="#F44336" />
+                        <TextBlock Text="Cancel" />
                     </StackPanel>
                 </Button>
-            </StackPanel>
-        </StackPanel>
 
-        <!-- backup path -->
-        <StackPanel Spacing="4">
-            <TextBlock Text="Backup Path:" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox x:Name="BackupPathBox"
-                         Width="280"
-                         IsReadOnly="True"
-                         IsEnabled="False"
-                         Text="{Binding BackupPath}"
-                         TextAlignment="Right"/>
-                <Button Width="80"
-                        IsEnabled="{Binding IsSaveTypeSelected}"
-                        Command="{Binding BrowseBackupPathCommand}">
+                <Button Grid.Column="2" Width="110"
+                        IsEnabled="{Binding CanAddGame}"
+                        Command="{Binding AddGameCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
-                        <TextBlock Text="Search" />
+                        <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
+                        <TextBlock Text="Add Game" />
                     </StackPanel>
                 </Button>
-            </StackPanel>
+            </Grid>
+
         </StackPanel>
-
-        <!-- error message -->
-        <TextBlock Text="{Binding ErrorMessage}"
-                   Foreground="#F44336"
-                   IsVisible="{Binding HasError}"
-                   TextWrapping="Wrap" />
-
-        <!-- buttons -->
-        <Grid Margin="0,8,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="0" Width="110"
-                    Command="{Binding CancelCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <material:MaterialIcon Kind="Close" Width="16" Height="16" Foreground="#F44336" />
-                    <TextBlock Text="Cancel" />
-                </StackPanel>
-            </Button>
-
-            <Button Grid.Column="2" Width="110"
-                    IsEnabled="{Binding CanAddGame}"
-                    Command="{Binding AddGameCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
-                    <TextBlock Text="Add Game" />
-                </StackPanel>
-            </Button>
-        </Grid>
-
-    </StackPanel>
+    </DockPanel>
 </Window>
