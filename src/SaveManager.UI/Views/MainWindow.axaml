@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SaveManager.UI.ViewModels"
+        xmlns:domain="using:SaveManager.Domain.Entities"
         xmlns:material="using:Material.Icons.Avalonia"
         xmlns:views="using:SaveManager.UI.Views"
         xmlns:controls="using:SaveManager.UI.Views.Controls"
@@ -21,6 +22,7 @@
 
     <DockPanel>
         <controls:TitleBar DockPanel.Dock="Top" />
+
         <Grid>
             <DockPanel>
 
@@ -35,20 +37,15 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- game dropdown and add game button -->
                         <StackPanel Grid.Column="0" Spacing="4">
                             <TextBlock Text="Game:" />
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <ComboBox Width="280"
-                                          ItemsSource="{Binding Games}"
-                                          SelectedItem="{Binding SelectedGame}"
-                                          Background="#333333">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}" />
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
+                                <Button Width="280"
+                                        Command="{Binding OpenGamePickerCommand}"
+                                        Background="#333333">
+                                    <TextBlock Text="{Binding SelectedGameDisplayText}" />
+                                </Button>
+
                                 <Button Width="110" Command="{Binding OpenAddGameCommand}">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
@@ -58,9 +55,6 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <!-- column * pushes settings to the right -->
-
-                        <!-- settings button -->
                         <Button Grid.Column="2"
                                 Width="40" Height="40"
                                 VerticalAlignment="Bottom"
@@ -69,23 +63,19 @@
                         </Button>
                     </Grid>
 
-                    <!-- separator -->
                     <Separator Margin="0,4,0,4" />
 
                     <!-- profile row -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Profile:" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <ComboBox Width="280"
-                                      IsEnabled="{Binding IsGameSelected}"
-                                      ItemsSource="{Binding Profiles}"
-                                      SelectedItem="{Binding SelectedProfile}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
+                            <Button Width="280"
+                                    IsEnabled="{Binding IsGameSelected}"
+                                    Command="{Binding OpenProfilePickerCommand}"
+                                    Background="#333333">
+                                <TextBlock Text="{Binding SelectedProfileDisplayText}" />
+                            </Button>
+
                             <Button Width="110"
                                     IsEnabled="{Binding IsGameSelected}"
                                     Command="{Binding OpenAddProfileCommand}">
@@ -97,13 +87,30 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- sort row (visual only for now) -->
+                    <!-- test buttons -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Width="120"
+                                IsEnabled="{Binding IsGameSelected}"
+                                Command="{Binding LoadProfilesCommand}">
+                            <TextBlock Text="Load Profiles" />
+                        </Button>
+
+                        <Button Width="120"
+                                IsEnabled="{Binding IsProfileSelected}"
+                                Command="{Binding LoadSavesCommand}">
+                            <TextBlock Text="Load Saves" />
+                        </Button>
+                    </StackPanel>
+
+                    <!-- sort row -->
                     <StackPanel Spacing="4">
                         <TextBlock Text="Sort by:" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <ComboBox Width="120" IsEnabled="{Binding CanManageSaves}" >
-                                <ComboBoxItem Content="Alphabet" IsSelected="True"/>
-                            </ComboBox>
+                            <Button Width="120"
+                                    IsEnabled="{Binding CanManageSaves}">
+                                <TextBlock Text="Alphabet" />
+                            </Button>
+
                             <TextBox Width="280"
                                      IsEnabled="{Binding CanManageSaves}"
                                      PlaceholderText="Search..." />
@@ -113,27 +120,40 @@
                 </StackPanel>
 
                 <!-- bottom panel -->
-                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
-                            Margin="12,8,12,12" Spacing="8">
-                    <Button Width="120" IsEnabled="{Binding CanManageSaves}" Command="{Binding CreateSaveCommand}">
+                <StackPanel DockPanel.Dock="Bottom"
+                            Orientation="Horizontal"
+                            Margin="12,8,12,12"
+                            Spacing="8">
+                    <Button Width="120"
+                            IsEnabled="{Binding CanManageSaves}"
+                            Command="{Binding CreateSaveCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
                             <TextBlock Text="Create Save" />
                         </StackPanel>
                     </Button>
-                    <Button Width="120" IsEnabled="{Binding IsSaveSelected}" Command="{Binding LoadSaveCommand}">
+
+                    <Button Width="120"
+                            IsEnabled="{Binding IsSaveSelected}"
+                            Command="{Binding LoadSaveCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <material:MaterialIcon Kind="Refresh" Width="16" Height="16" Foreground="#4CAF50" />
                             <TextBlock Text="Load Save" />
                         </StackPanel>
                     </Button>
-                    <Button Width="130" IsEnabled="{Binding IsSaveSelected}" Command="{Binding ReplaceSaveCommand}">
+
+                    <Button Width="130"
+                            IsEnabled="{Binding IsSaveSelected}"
+                            Command="{Binding ReplaceSaveCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <material:MaterialIcon Kind="SwapHorizontal" Width="16" Height="16" Foreground="#FF9800" />
                             <TextBlock Text="Replace Save" />
                         </StackPanel>
                     </Button>
-                    <Button Width="120" IsEnabled="{Binding IsSaveSelected}" Command="{Binding DeleteSaveCommand}">
+
+                    <Button Width="120"
+                            IsEnabled="{Binding IsSaveSelected}"
+                            Command="{Binding DeleteSaveCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <material:MaterialIcon Kind="Close" Width="16" Height="16" Foreground="#F44336" />
                             <TextBlock Text="Delete Save" />
@@ -142,18 +162,253 @@
                 </StackPanel>
 
                 <!-- save list -->
-                <ListBox Margin="12,8,12,0" Background="#424242"
+                <ListBox Margin="12,8,12,0"
+                         Background="#424242"
                          ItemsSource="{Binding Saves}"
                          SelectedItem="{Binding SelectedSave}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="domain:Save">
                             <TextBlock Text="{Binding Name}" Padding="4,2" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
 
             </DockPanel>
-            <views:ToastView DataContext="{Binding Toast}"
+
+            <!-- add game overlay -->
+            <Border IsVisible="{Binding IsAddGameDialogOpen}"
+                    Background="#AA000000"
+                    ZIndex="100">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="420"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+
+                            <TextBlock Text="Add Game"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Name:" />
+                                <TextBox Text="{Binding NewGameName}"
+                                         Background="#333333" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Save type:" />
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="24"
+                                            Margin="8,0,0,0">
+                                    <CheckBox Content="Single File"
+                                              IsChecked="{Binding NewGameIsSingleFile}" />
+                                    <CheckBox Content="Folder"
+                                              IsChecked="{Binding NewGameIsFolder}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Save Path:" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox Width="280"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Text="{Binding NewGameSavePath}"
+                                             TextAlignment="Right" />
+                                    <Button Width="80"
+                                            IsEnabled="{Binding IsNewGameSaveTypeSelected}"
+                                            Command="{Binding BrowseNewGameSavePathCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
+                                            <TextBlock Text="Search" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Backup Path:" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox Width="280"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Text="{Binding NewGameBackupPath}"
+                                             TextAlignment="Right" />
+                                    <Button Width="80"
+                                            IsEnabled="{Binding IsNewGameSaveTypeSelected}"
+                                            Command="{Binding BrowseNewGameBackupPathCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
+                                            <TextBlock Text="Search" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding AddGameErrorMessage}"
+                                       Foreground="#F44336"
+                                       IsVisible="{Binding HasAddGameError}"
+                                       TextWrapping="Wrap" />
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="110"
+                                        Command="{Binding CancelAddGameCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="Close"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#F44336" />
+                                        <TextBlock Text="Cancel" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="110"
+                                        IsEnabled="{Binding CanConfirmAddGame}"
+                                        Command="{Binding ConfirmAddGameCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="Plus"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#4CAF50" />
+                                        <TextBlock Text="Add Game" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- game picker overlay -->
+            <Border IsVisible="{Binding IsGamePickerOpen}"
+                    Background="#AA000000"
+                    ZIndex="101">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="420"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Select Game"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <ListBox Height="260"
+                                     ItemsSource="{Binding Games}"
+                                     SelectedItem="{Binding PendingSelectedGame}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="domain:Game">
+                                        <TextBlock Text="{Binding Name}" Padding="4,2" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="110"
+                                        Command="{Binding CancelGamePickerCommand}">
+                                    <TextBlock Text="Cancel" />
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="110"
+                                        IsEnabled="{Binding CanConfirmGamePicker}"
+                                        Command="{Binding ConfirmGamePickerCommand}">
+                                    <TextBlock Text="Select" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- profile picker overlay -->
+            <Border IsVisible="{Binding IsProfilePickerOpen}"
+                    Background="#AA000000"
+                    ZIndex="102">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="420"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Select Profile"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <ListBox Height="260"
+                                     ItemsSource="{Binding Profiles}"
+                                     SelectedItem="{Binding PendingSelectedProfile}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="domain:Profile">
+                                        <TextBlock Text="{Binding Name}" Padding="4,2" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="110"
+                                        Command="{Binding CancelProfilePickerCommand}">
+                                    <TextBlock Text="Cancel" />
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="110"
+                                        IsEnabled="{Binding CanConfirmProfilePicker}"
+                                        Command="{Binding ConfirmProfilePickerCommand}">
+                                    <TextBlock Text="Select" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <views:ToastView Toast="{Binding Toast}"
                              VerticalAlignment="Center"
                              HorizontalAlignment="Center" />
         </Grid>

@@ -43,7 +43,7 @@
                              IsReadOnly="True"
                              IsEnabled="False"
                              Text="{Binding SavePath}"
-                             TextAlignment="Right"/>
+                             TextAlignment="Right" />
                     <Button Width="80"
                             IsEnabled="{Binding IsSaveTypeSelected}"
                             Command="{Binding BrowseSavePathCommand}">
@@ -64,7 +64,7 @@
                              IsReadOnly="True"
                              IsEnabled="False"
                              Text="{Binding BackupPath}"
-                             TextAlignment="Right"/>
+                             TextAlignment="Right" />
                     <Button Width="80"
                             IsEnabled="{Binding IsSaveTypeSelected}"
                             Command="{Binding BrowseBackupPathCommand}">
@@ -91,7 +91,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0" Width="110"
-                        Command="{Binding CancelCommand}">
+                        Click="OnCancelClick">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <material:MaterialIcon Kind="Close" Width="16" Height="16" Foreground="#F44336" />
                         <TextBlock Text="Cancel" />
@@ -100,7 +100,7 @@
 
                 <Button Grid.Column="2" Width="110"
                         IsEnabled="{Binding CanAddGame}"
-                        Command="{Binding AddGameCommand}">
+                        Click="OnAddGameClick">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <material:MaterialIcon Kind="Plus" Width="16" Height="16" Foreground="#4CAF50" />
                         <TextBlock Text="Add Game" />

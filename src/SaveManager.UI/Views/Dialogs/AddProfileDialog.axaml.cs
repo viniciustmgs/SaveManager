@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using SaveManager.UI.ViewModels.Dialogs;
 
 namespace SaveManager.UI.Views.Dialogs
@@ -8,11 +9,20 @@ namespace SaveManager.UI.Views.Dialogs
         public AddProfileDialog()
         {
             InitializeComponent();
+            DataContext = new AddProfileDialogViewModel();
+        }
 
-            var viewModel = new AddProfileDialogViewModel();
-            viewModel.RequestClose += Close;
+        private void OnCancelClick(object? sender, RoutedEventArgs e)
+        {
+            Close(null);
+        }
 
-            DataContext = viewModel;
+        private void OnAddProfileClick(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is not AddProfileDialogViewModel vm || !vm.CanAddProfile)
+                return;
+
+            Close(vm.Name);
         }
     }
 }

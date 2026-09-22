@@ -1,6 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
 
 namespace SaveManager.UI.ViewModels.Dialogs
 {
@@ -18,25 +16,5 @@ namespace SaveManager.UI.ViewModels.Dialogs
         }
 
         public bool CanAddProfile => !string.IsNullOrWhiteSpace(Name);
-
-        public string? Result { get; private set; }
-
-        public event Action? RequestClose;
-
-        [RelayCommand]
-        private void AddProfile()
-        {
-            if (!CanAddProfile) return;
-
-            Result = Name;
-            RequestClose?.Invoke();
-        }
-
-        [RelayCommand]
-        private void Cancel()
-        {
-            Result = null;
-            RequestClose?.Invoke();
-        }
     }
 }

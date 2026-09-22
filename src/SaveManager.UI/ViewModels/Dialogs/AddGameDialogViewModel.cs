@@ -1,8 +1,6 @@
 ﻿using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SaveManager.Domain.Enums;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -96,11 +94,6 @@ namespace SaveManager.UI.ViewModels.Dialogs
             !string.IsNullOrWhiteSpace(SavePath) &&
             !string.IsNullOrWhiteSpace(BackupPath);
 
-        // result for MainWindowViewModel to use
-        public (string Name, string SavePath, string BackupPath, SaveType SaveType)? Result { get; private set; }
-
-        public event Action? RequestClose;
-
         [RelayCommand]
         private async Task BrowseSavePath()
         {
@@ -164,28 +157,6 @@ namespace SaveManager.UI.ViewModels.Dialogs
             if (folders.Count == 0) return;
 
             BackupPath = folders[0].Path.LocalPath;
-        }
-
-        [RelayCommand]
-        private void AddGame()
-        {
-            if (!CanAddGame) return;
-
-            Result = (
-                Name,
-                SavePath,
-                BackupPath,
-                IsSingleFile ? SaveType.SingleFile : SaveType.Folder
-            );
-
-            RequestClose?.Invoke();
-        }
-
-        [RelayCommand]
-        private void Cancel()
-        {
-            Result = null;
-            RequestClose?.Invoke();
         }
     }
 }

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using SaveManager.UI.ViewModels;
 
 namespace SaveManager.UI.Views
 {
@@ -7,6 +8,9 @@ namespace SaveManager.UI.Views
         public MainWindow()
         {
             InitializeComponent();
+
+            if (DataContext is MainWindowViewModel vm)
+                vm.SetStorageProvider(StorageProvider);
         }
     }
 }

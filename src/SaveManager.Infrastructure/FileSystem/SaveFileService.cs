@@ -9,17 +9,34 @@ namespace SaveManager.Infrastructure.FileSystem
     {
         public List<Profile> ReadProfiles(Game game)
         {
-            if (!Directory.Exists(game.BackupFolderPath))
-                return [];
+            System.Diagnostics.Debug.WriteLine($"ReadProfiles START: {game.Name}");
+            System.Diagnostics.Debug.WriteLine($"BackupFolderPath: {game.BackupFolderPath}");
 
-            return Directory
-                .GetDirectories(game.BackupFolderPath)
-                .Select(path => new Profile
+            if (!Directory.Exists(game.BackupFolderPath))
+            {
+                System.Diagnostics.Debug.WriteLine("Backup folder does not exist.");
+                return [];
+            }
+
+            System.Diagnostics.Debug.WriteLine("Before GetDirectories");
+            var directories = Directory.GetDirectories(game.BackupFolderPath);
+            System.Diagnostics.Debug.WriteLine($"After GetDirectories - count: {directories.Length}");
+
+            var result = new List<Profile>();
+
+            foreach (var path in directories)
+            {
+                System.Diagnostics.Debug.WriteLine($"Profile dir: {path}");
+
+                result.Add(new Profile
                 {
                     Name = Path.GetFileName(path),
                     FolderPath = path
-                })
-                .ToList();
+                });
+            }
+
+            System.Diagnostics.Debug.WriteLine("ReadProfiles END");
+            return result;
         }
 
         public Profile CreateProfile(Game game, string profileName)

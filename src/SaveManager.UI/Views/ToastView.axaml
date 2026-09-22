@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaveManager.UI.ViewModels"
              x:Class="SaveManager.UI.Views.ToastView"
-             x:DataType="vm:ToastViewModel"
-             IsVisible="{Binding IsVisible}"
+             x:Name="Root"
+             IsVisible="{Binding #Root.Toast.IsVisible}"
              IsHitTestVisible="False">
 
     <Grid>
@@ -16,8 +16,8 @@
                 BorderThickness="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                IsVisible="{Binding IsSuccess}">
-            <TextBlock Text="{Binding Message}"
+                IsVisible="{Binding #Root.Toast.IsSuccess}">
+            <TextBlock Text="{Binding #Root.Toast.Message}"
                        Foreground="White"
                        TextWrapping="Wrap"
                        TextAlignment="Center" />
@@ -32,8 +32,8 @@
                 BorderThickness="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                IsVisible="{Binding !IsSuccess}">
-            <TextBlock Text="{Binding Message}"
+                IsVisible="{Binding !#Root.Toast.IsSuccess}">
+            <TextBlock Text="{Binding #Root.Toast.Message}"
                        Foreground="White"
                        TextWrapping="Wrap"
                        TextAlignment="Center" />

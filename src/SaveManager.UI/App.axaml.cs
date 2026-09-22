@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SaveManager.Application.DI;
 using SaveManager.Infrastructure.DI;
 using SaveManager.UI.DI;
+using System;
+using System.Threading.Tasks;
 
 namespace SaveManager.UI
 {
@@ -17,6 +19,19 @@ namespace SaveManager.UI
 
         public override void OnFrameworkInitializationCompleted()
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("=== UNHANDLED EXCEPTION ===");
+                System.Diagnostics.Debug.WriteLine(e.ExceptionObject?.ToString());
+            };
+
+            TaskScheduler.UnobservedTaskException += (sender, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("=== UNOBSERVED TASK EXCEPTION ===");
+                System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
+                e.SetObserved();
+            };
+
             var services = new ServiceCollection();
 
             services.AddInfrastructure();
