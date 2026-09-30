@@ -20,6 +20,7 @@ namespace SaveManager.UI.ViewModels
         private readonly DeleteSaveUseCase _deleteSave;
         private readonly AddGameUseCase _addGame;
         private readonly CreateProfileUseCase _createProfile;
+        private readonly RenameSaveUseCase _renameSave;
 
         private IStorageProvider? _storageProvider;
         private int _selectedGameLoadVersion;
@@ -119,6 +120,7 @@ namespace SaveManager.UI.ViewModels
             _deleteSave = AppServiceProvider.GetService<DeleteSaveUseCase>();
             _addGame = AppServiceProvider.GetService<AddGameUseCase>();
             _createProfile = AppServiceProvider.GetService<CreateProfileUseCase>();
+            _renameSave = AppServiceProvider.GetService<RenameSaveUseCase>();
 
             LoadGames();
         }

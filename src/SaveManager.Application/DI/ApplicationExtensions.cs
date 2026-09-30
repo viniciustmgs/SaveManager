@@ -27,6 +27,7 @@ namespace SaveManager.Application.DI
             services.AddTransient<LoadSaveUseCase>();
             services.AddTransient<ReplaceSaveUseCase>();
             services.AddTransient<DeleteSaveUseCase>();
+            services.AddTransient<RenameSaveUseCase>();
 
             return services;
         }

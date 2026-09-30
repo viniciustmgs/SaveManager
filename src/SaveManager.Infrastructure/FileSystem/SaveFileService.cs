@@ -181,6 +181,55 @@ namespace SaveManager.Infrastructure.FileSystem
             }
         }
 
+        public Save RenameSave(Game game, Save save, string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("Save name can not be empty");
+
+            var parentFolder = Path.GetDirectoryName(save.SavePath)
+                ?? throw new ArgumentException("Invalid save path");
+
+            var newPath = Path.Combine(parentFolder, newName);
+
+            if (string.Equals(newPath, save.SavePath, StringComparison.Ordinal))
+                return save;
+
+            if (game.SaveType == SaveType.SingleFile)
+            {
+                if (!File.Exists(save.SavePath))
+                    throw new ArgumentException("Save file not found");
+
+                if (File.Exists(newPath))
+                    throw new ArgumentException("A save with this name already exists");
+
+                File.Move(save.SavePath, newPath);
+
+                return new Save
+                {
+                    Name = newName,
+                    SavePath = newPath,
+                    CreatedAt = save.CreatedAt
+                };
+            }
+            else
+            {
+                if (!Directory.Exists(save.SavePath))
+                    throw new ArgumentException("Save folder not found");
+
+                if (Directory.Exists(newPath))
+                    throw new ArgumentException("A save with this name already exists");
+
+                Directory.Move(save.SavePath, newPath);
+
+                return new Save
+                {
+                    Name = newName,
+                    SavePath = newPath,
+                    CreatedAt = Directory.GetCreationTime(newPath)
+                };
+            }
+        }
+
         private void CopyDirectory(string sourcePath, string destinationPath)
         {
             Directory.CreateDirectory(destinationPath);

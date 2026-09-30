@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using SaveManager.Domain.Entities;
 using SaveManager.UI.ViewModels;
 
 namespace SaveManager.UI.Views
@@ -11,6 +13,12 @@ namespace SaveManager.UI.Views
 
             if (DataContext is MainWindowViewModel vm)
                 vm.SetStorageProvider(StorageProvider);
+        }
+
+        private void OnRenameSaveClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem { DataContext: Save save } && DataContext is MainWindowViewModel vm)
+                vm.OpenRenameSaveCommand.Execute(save);
         }
     }
 }
