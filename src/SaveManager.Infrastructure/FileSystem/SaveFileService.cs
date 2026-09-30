@@ -225,7 +225,7 @@ namespace SaveManager.Infrastructure.FileSystem
                 {
                     Name = newName,
                     SavePath = newPath,
-                    CreatedAt = Directory.GetCreationTime(newPath)
+                    CreatedAt = save.CreatedAt
                 };
             }
         }
