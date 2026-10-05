@@ -1,5 +1,6 @@
 ﻿using SaveManager.Domain.Enums;
 using SaveManager.Domain.Interfaces;
+using SaveManager.Application.Common;
 
 namespace SaveManager.Application.UseCases.Game
 {
@@ -26,6 +27,9 @@ namespace SaveManager.Application.UseCases.Game
             {
                 if (!Directory.Exists(saveFolderPath))
                     throw new ArgumentException("The save folder doesn't exist");
+
+                if (PathHelper.IsSameOrSubdirectory(backupFolderPath, saveFolderPath))
+                    throw new ArgumentException("The save folder cannot be the backup folder");
             }
 
             if (!Directory.Exists(backupFolderPath))

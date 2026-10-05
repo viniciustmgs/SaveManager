@@ -19,6 +19,8 @@ namespace SaveManager.UI.ViewModels
         private readonly ReplaceSaveUseCase _replaceSave;
         private readonly DeleteSaveUseCase _deleteSave;
         private readonly AddGameUseCase _addGame;
+        private readonly UpdateGameUseCase _updateGame;
+        private readonly RemoveGameUseCase _removeGame;
         private readonly CreateProfileUseCase _createProfile;
         private readonly RenameSaveUseCase _renameSave;
 
@@ -119,6 +121,8 @@ namespace SaveManager.UI.ViewModels
             _replaceSave = AppServiceProvider.GetService<ReplaceSaveUseCase>();
             _deleteSave = AppServiceProvider.GetService<DeleteSaveUseCase>();
             _addGame = AppServiceProvider.GetService<AddGameUseCase>();
+            _updateGame = AppServiceProvider.GetService<UpdateGameUseCase>();
+            _removeGame = AppServiceProvider.GetService<RemoveGameUseCase>();
             _createProfile = AppServiceProvider.GetService<CreateProfileUseCase>();
             _renameSave = AppServiceProvider.GetService<RenameSaveUseCase>();
 

@@ -1,5 +1,7 @@
-﻿using Avalonia.Platform.Storage;
+﻿using Avalonia.Controls.Shapes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
+using SaveManager.Application.Common;
 using SaveManager.Domain.Enums;
 using System;
 using System.IO;
@@ -196,6 +198,12 @@ namespace SaveManager.UI.ViewModels
                     return;
                 }
 
+                if (!string.IsNullOrEmpty(NewGameBackupPath) && PathHelper.IsSameOrSubdirectory(NewGameBackupPath, path))
+                {
+                    AddGameErrorMessage = "The save folder cannot be the backup folder";
+                    return;
+                }
+
                 NewGameSavePath = path;
             }
         }
@@ -205,6 +213,8 @@ namespace SaveManager.UI.ViewModels
         {
             if (_storageProvider == null) return;
 
+            AddGameErrorMessage = string.Empty;
+
             var folders = await _storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Select Backup Folder",
@@ -212,6 +222,14 @@ namespace SaveManager.UI.ViewModels
             });
 
             if (folders.Count == 0) return;
+
+            var path = folders[0].Path.LocalPath;
+
+            if (NewGameIsFolder && !string.IsNullOrEmpty(NewGameSavePath) && PathHelper.IsSameOrSubdirectory(path, NewGameSavePath))
+            {
+                AddGameErrorMessage = "The save folder cannot be the backup folder";
+                return;
+            }
 
             NewGameBackupPath = folders[0].Path.LocalPath;
         }
