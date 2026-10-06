@@ -2,20 +2,26 @@
 {
     public static class PathHelper
     {
-        /// Returns true if "candidate" is the same folder as "basePath", or a folder nested anywhere inside it.
+        // Windows and macOS resolve paths ignoring case. linux does not
+        private static readonly StringComparison PathComparison =
+            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+
+        // Returns true if "candidate" is the same folder as "basePath", or a folder nested anywhere inside it.
         public static bool IsSameOrSubdirectory(string candidate, string basePath)
         {
             var normalizedCandidate = NormalizePath(candidate);
             var normalizedBase = NormalizePath(basePath);
 
-            if (string.Equals(normalizedCandidate, normalizedBase, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(normalizedCandidate, normalizedBase, PathComparison))
                 return true;
 
             var baseWithSeparator = normalizedBase.EndsWith(Path.DirectorySeparatorChar)
                 ? normalizedBase
                 : normalizedBase + Path.DirectorySeparatorChar;
 
-            return normalizedCandidate.StartsWith(baseWithSeparator, StringComparison.OrdinalIgnoreCase);
+            return normalizedCandidate.StartsWith(baseWithSeparator, PathComparison);
         }
 
         private static string NormalizePath(string path)

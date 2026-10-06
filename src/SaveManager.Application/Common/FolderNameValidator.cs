@@ -24,22 +24,27 @@
                 return false;
             }
 
-            // windows silently trims trailing dots/spaces from folder names, which
-            // can make the folder that gets created not match what was typed.
-            if (name.EndsWith('.') || name.EndsWith(' '))
+            // The remaining rules only exist on Windows. Elsewhere these names are perfectly
+            // legal, so rejecting them there would refuse folders the user can actually create.
+            if (OperatingSystem.IsWindows())
             {
-                errorMessage = "Name can not end with a space or a period";
-                return false;
-            }
+                // windows silently trims trailing dots/spaces from folder names, which
+                // can make the folder that gets created not match what was typed.
+                if (name.EndsWith('.') || name.EndsWith(' '))
+                {
+                    errorMessage = "Name can not end with a space or a period";
+                    return false;
+                }
 
-            var nameWithoutExtension = name.Contains('.')
-                ? name[..name.IndexOf('.')]
-                : name;
+                var nameWithoutExtension = name.Contains('.')
+                    ? name[..name.IndexOf('.')]
+                    : name;
 
-            if (ReservedWindowsNames.Contains(nameWithoutExtension, StringComparer.OrdinalIgnoreCase))
-            {
-                errorMessage = $"\"{name}\" is a reserved name and can not be used";
-                return false;
+                if (ReservedWindowsNames.Contains(nameWithoutExtension, StringComparer.OrdinalIgnoreCase))
+                {
+                    errorMessage = $"\"{name}\" is a reserved name and can not be used";
+                    return false;
+                }
             }
 
             errorMessage = null;
