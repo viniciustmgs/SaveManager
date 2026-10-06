@@ -13,5 +13,6 @@ namespace SaveManager.Domain.Interfaces
         void DeleteSave(Save save);
         void ReplaceSave(Game game, Save save);
         Save RenameSave(Game game, Save save, string newName);
+        Profile RenameProfile(Profile profile, string newName);
     }
 }

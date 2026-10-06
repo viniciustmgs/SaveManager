@@ -1,4 +1,5 @@
-﻿using SaveManager.Domain.Interfaces;
+﻿using SaveManager.Application.Common;
+using SaveManager.Domain.Interfaces;
 
 namespace SaveManager.Application.UseCases.Profile
 {
@@ -15,8 +16,10 @@ namespace SaveManager.Application.UseCases.Profile
 
         public void Execute(Guid gameId, string profileName)
         {
-            if (string.IsNullOrWhiteSpace(profileName))
-                throw new ArgumentException("Profile name can not be empty");
+            profileName = profileName.Trim();
+
+            if (!FolderNameValidator.IsValidFolderName(profileName, out var error))
+                throw new ArgumentException(error);
 
             var game = _gameRepository.GetById(gameId);
 

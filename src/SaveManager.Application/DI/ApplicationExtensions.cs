@@ -20,6 +20,7 @@ namespace SaveManager.Application.DI
             services.AddTransient<CreateProfileUseCase>();
             services.AddTransient<GetProfilesUseCase>();
             services.AddTransient<RemoveProfileUseCase>();
+            services.AddTransient<RenameProfileUseCase>();
 
             // use cases - save
             services.AddTransient<CreateSaveUseCase>();

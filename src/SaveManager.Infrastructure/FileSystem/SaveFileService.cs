@@ -63,6 +63,22 @@ namespace SaveManager.Infrastructure.FileSystem
             Directory.Delete(profile.FolderPath, recursive: true);
         }
 
+        public Profile RenameProfile(Profile profile, string newName)
+        {
+            var parentFolder = Path.GetDirectoryName(profile.FolderPath)
+                ?? throw new ArgumentException("Invalid profile path");
+
+            var newPath = Path.Combine(parentFolder, newName);
+
+            Directory.Move(profile.FolderPath, newPath);
+
+            return new Profile
+            {
+                Name = newName,
+                FolderPath = newPath
+            };
+        }
+
         public List<Save> ReadSaves(Profile profile, Game game)
         {
             if (!Directory.Exists(profile.FolderPath))

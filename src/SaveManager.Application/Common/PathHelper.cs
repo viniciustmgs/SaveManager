@@ -2,9 +2,7 @@
 {
     public static class PathHelper
     {
-        /// <summary>
         /// Returns true if "candidate" is the same folder as "basePath", or a folder nested anywhere inside it.
-        /// </summary>
         public static bool IsSameOrSubdirectory(string candidate, string basePath)
         {
             var normalizedCandidate = NormalizePath(candidate);
