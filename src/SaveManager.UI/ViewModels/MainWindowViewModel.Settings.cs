@@ -1,9 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using SaveManager.Domain.Entities;
+using System;
+using System.Threading.Tasks;
 
 namespace SaveManager.UI.ViewModels
 {
     public partial class MainWindowViewModel
     {
+        // the hotkey properties below are a draft and only replace it on save
+        // snapshot of the persisted settings. Never handed out directly: callers get the
+        // bound draft properties instead, so edits stay local until saved.
+        private AppSettings _settings = new();
+
         private bool _isSettingsDialogOpen;
         public bool IsSettingsDialogOpen
         {
@@ -11,11 +19,22 @@ namespace SaveManager.UI.ViewModels
             set => SetProperty(ref _isSettingsDialogOpen, value);
         }
 
+        private bool _isSettingsDiscardPromptOpen;
+        public bool IsSettingsDiscardPromptOpen
+        {
+            get => _isSettingsDiscardPromptOpen;
+            set => SetProperty(ref _isSettingsDiscardPromptOpen, value);
+        }
+
         private bool _globalHotkeysEnabled;
         public bool GlobalHotkeysEnabled
         {
             get => _globalHotkeysEnabled;
-            set => SetProperty(ref _globalHotkeysEnabled, value);
+            set
+            {
+                if (SetProperty(ref _globalHotkeysEnabled, value))
+                    OnPropertyChanged(nameof(HasUnsavedChanges));
+            }
         }
 
         private string _createSaveHotkey = string.Empty;
@@ -24,7 +43,12 @@ namespace SaveManager.UI.ViewModels
             get => _createSaveHotkey;
             set
             {
-                if (!SetProperty(ref _createSaveHotkey, value) || string.IsNullOrEmpty(value))
+                if (!SetProperty(ref _createSaveHotkey, value))
+                    return;
+
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                if (string.IsNullOrEmpty(value))
                     return;
 
                 if (LoadSaveHotkey == value) LoadSaveHotkey = string.Empty;
@@ -40,7 +64,12 @@ namespace SaveManager.UI.ViewModels
             get => _loadSaveHotkey;
             set
             {
-                if (!SetProperty(ref _loadSaveHotkey, value) || string.IsNullOrEmpty(value))
+                if (!SetProperty(ref _loadSaveHotkey, value))
+                    return;
+
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                if (string.IsNullOrEmpty(value))
                     return;
 
                 if (CreateSaveHotkey == value) CreateSaveHotkey = string.Empty;
@@ -56,7 +85,12 @@ namespace SaveManager.UI.ViewModels
             get => _nextSaveHotkey;
             set
             {
-                if (!SetProperty(ref _nextSaveHotkey, value) || string.IsNullOrEmpty(value))
+                if (!SetProperty(ref _nextSaveHotkey, value))
+                    return;
+
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                if (string.IsNullOrEmpty(value))
                     return;
 
                 if (CreateSaveHotkey == value) CreateSaveHotkey = string.Empty;
@@ -72,7 +106,12 @@ namespace SaveManager.UI.ViewModels
             get => _previousSaveHotkey;
             set
             {
-                if (!SetProperty(ref _previousSaveHotkey, value) || string.IsNullOrEmpty(value))
+                if (!SetProperty(ref _previousSaveHotkey, value))
+                    return;
+
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                if (string.IsNullOrEmpty(value))
                     return;
 
                 if (CreateSaveHotkey == value) CreateSaveHotkey = string.Empty;
@@ -88,7 +127,12 @@ namespace SaveManager.UI.ViewModels
             get => _toggleGlobalHotkeysHotkey;
             set
             {
-                if (!SetProperty(ref _toggleGlobalHotkeysHotkey, value) || string.IsNullOrEmpty(value))
+                if (!SetProperty(ref _toggleGlobalHotkeysHotkey, value))
+                    return;
+
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                if (string.IsNullOrEmpty(value))
                     return;
 
                 if (CreateSaveHotkey == value) CreateSaveHotkey = string.Empty;
@@ -98,30 +142,95 @@ namespace SaveManager.UI.ViewModels
             }
         }
 
+        public bool HasUnsavedChanges =>
+            GlobalHotkeysEnabled != _settings.GlobalHotkeysEnabled
+            || CreateSaveHotkey != _settings.CreateSave
+            || LoadSaveHotkey != _settings.LoadSave
+            || NextSaveHotkey != _settings.NextSave
+            || PreviousSaveHotkey != _settings.PreviousSave
+            || ToggleGlobalHotkeysHotkey != _settings.ToggleGlobalHotkeys;
+
+        public void LoadSettings()
+        {
+            _settings = _getSettings.Execute();
+        }
+
+        private void LoadDraftFromSettings()
+        {
+            GlobalHotkeysEnabled = _settings.GlobalHotkeysEnabled;
+            CreateSaveHotkey = _settings.CreateSave;
+            LoadSaveHotkey = _settings.LoadSave;
+            NextSaveHotkey = _settings.NextSave;
+            PreviousSaveHotkey = _settings.PreviousSave;
+            ToggleGlobalHotkeysHotkey = _settings.ToggleGlobalHotkeys;
+        }
+
         [RelayCommand]
         private void OpenSettings()
         {
-            ResetSettingsDraft();
+            LoadSettings();
+            LoadDraftFromSettings();
+
+            IsSettingsDiscardPromptOpen = false;
             IsSettingsDialogOpen = true;
         }
 
-        // Draft state only: nothing here is persisted yet, so opening the overlay starts blank.
-        // When persistence lands this becomes the load from config.json, and a SaveSettings
-        // command writes these properties back.
-        private void ResetSettingsDraft()
+        [RelayCommand]
+        private async Task SaveSettings()
         {
-            GlobalHotkeysEnabled = false;
-            CreateSaveHotkey = string.Empty;
-            LoadSaveHotkey = string.Empty;
-            NextSaveHotkey = string.Empty;
-            PreviousSaveHotkey = string.Empty;
-            ToggleGlobalHotkeysHotkey = string.Empty;
+            var settings = new AppSettings
+            {
+                GlobalHotkeysEnabled = GlobalHotkeysEnabled,
+                CreateSave = CreateSaveHotkey,
+                LoadSave = LoadSaveHotkey,
+                NextSave = NextSaveHotkey,
+                PreviousSave = PreviousSaveHotkey,
+                ToggleGlobalHotkeys = ToggleGlobalHotkeysHotkey
+            };
+
+            try
+            {
+                _saveSettings.Execute(settings);
+                _settings = settings;
+
+                await Toast.Show("Settings saved", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to save settings: {ex.Message}", isSuccess: false);
+            }
         }
 
         [RelayCommand]
         private void CloseSettings()
         {
+            if (HasUnsavedChanges)
+            {
+                IsSettingsDiscardPromptOpen = true;
+                return;
+            }
+
+            HideSettingsOverlay();
+        }
+
+        [RelayCommand]
+        private void DiscardSettingsChanges()
+        {
+            LoadDraftFromSettings();
+
+            HideSettingsOverlay();
+        }
+
+        [RelayCommand]
+        private void CancelDiscardSettings()
+        {
+            IsSettingsDiscardPromptOpen = false;
+        }
+
+        private void HideSettingsOverlay()
+        {
             IsSettingsDialogOpen = false;
+            IsSettingsDiscardPromptOpen = false;
         }
     }
 }

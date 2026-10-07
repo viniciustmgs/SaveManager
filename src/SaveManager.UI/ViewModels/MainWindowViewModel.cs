@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using SaveManager.Application.UseCases.Game;
 using SaveManager.Application.UseCases.Profile;
 using SaveManager.Application.UseCases.Save;
+using SaveManager.Application.UseCases.Settings;
 using SaveManager.Domain.Entities;
 using SaveManager.UI.DI;
 using System.Collections.ObjectModel;
@@ -25,6 +26,8 @@ namespace SaveManager.UI.ViewModels
         private readonly RemoveProfileUseCase _removeProfile;
         private readonly RenameProfileUseCase _renameProfile;
         private readonly RenameSaveUseCase _renameSave;
+        private readonly GetSettingsUseCase _getSettings;
+        private readonly SaveSettingsUseCase _saveSettings;
 
         private IStorageProvider? _storageProvider;
         private int _selectedGameLoadVersion;
@@ -129,8 +132,11 @@ namespace SaveManager.UI.ViewModels
             _removeProfile = AppServiceProvider.GetService<RemoveProfileUseCase>();
             _renameProfile = AppServiceProvider.GetService<RenameProfileUseCase>();
             _renameSave = AppServiceProvider.GetService<RenameSaveUseCase>();
+            _getSettings = AppServiceProvider.GetService<GetSettingsUseCase>();
+            _saveSettings = AppServiceProvider.GetService<SaveSettingsUseCase>();
 
             LoadGames();
+            LoadSettings();
         }
 
         public void SetStorageProvider(IStorageProvider storageProvider)

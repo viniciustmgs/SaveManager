@@ -9,8 +9,10 @@ namespace SaveManager.Infrastructure.DI
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
+            services.AddSingleton<AppConfigStore>();
             services.AddSingleton<IGameRepository, JsonGameRepository>();
             services.AddSingleton<ISaveFileService, SaveFileService>();
+            services.AddSingleton<ISettingsRepository, JsonSettingsRepository>();
 
             return services;
         }

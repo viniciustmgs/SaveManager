@@ -2,6 +2,7 @@
 using SaveManager.Application.UseCases.Game;
 using SaveManager.Application.UseCases.Profile;
 using SaveManager.Application.UseCases.Save;
+using SaveManager.Application.UseCases.Settings;
 
 namespace SaveManager.Application.DI
 {
@@ -29,6 +30,10 @@ namespace SaveManager.Application.DI
             services.AddTransient<ReplaceSaveUseCase>();
             services.AddTransient<DeleteSaveUseCase>();
             services.AddTransient<RenameSaveUseCase>();
+
+            // use cases - settings
+            services.AddTransient<GetSettingsUseCase>();
+            services.AddTransient<SaveSettingsUseCase>();
 
             return services;
         }

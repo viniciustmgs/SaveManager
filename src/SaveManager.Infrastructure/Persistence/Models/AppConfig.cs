@@ -3,6 +3,6 @@
     public class AppConfig
     {
         public List<Domain.Entities.Game> Games { get; set; } = [];
-        public HotKeyConfig Hotkeys { get; set; } = new();
+        public Domain.Entities.AppSettings Settings { get; set; } = new();
     }
 }
