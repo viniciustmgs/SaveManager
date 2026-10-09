@@ -5,6 +5,14 @@ namespace SaveManager.Infrastructure.Services
 {
     public static class SaveNameGenerator
     {
+        private static readonly StringComparison NameComparison =
+            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+
+        private static bool Contains(List<string?> names, string candidate) =>
+            names.Any(name => string.Equals(name, candidate, NameComparison));
+
         public static string Generate(Profile profile, Game game)
         {
             if (game.SaveType == SaveType.SingleFile)
@@ -16,14 +24,12 @@ namespace SaveManager.Infrastructure.Services
                     .Select(Path.GetFileName)
                     .ToList();
 
-                // tries the original name first
                 var baseName = $"{fileName}{extension}";
-                if (!existingFiles.Contains(baseName))
+                if (!Contains(existingFiles, baseName))
                     return baseName;
 
-                // if exists, add index
                 var index = 0;
-                while (existingFiles.Contains($"{fileName}_{index}{extension}"))
+                while (Contains(existingFiles, $"{fileName}_{index}{extension}"))
                     index++;
 
                 return $"{fileName}_{index}{extension}";
@@ -36,11 +42,11 @@ namespace SaveManager.Infrastructure.Services
                     .Select(Path.GetFileName)
                     .ToList();
 
-                if (!existingSaves.Contains(baseName))
+                if (!Contains(existingSaves, baseName))
                     return baseName;
 
                 var index = 0;
-                while (existingSaves.Contains($"{baseName}_{index}"))
+                while (Contains(existingSaves, $"{baseName}_{index}"))
                     index++;
 
                 return $"{baseName}_{index}";

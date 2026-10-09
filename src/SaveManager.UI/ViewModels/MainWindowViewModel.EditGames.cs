@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls.Shapes;
-using Avalonia.Platform.Storage;
+﻿using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using SaveManager.Application.Common;
 using SaveManager.Domain.Entities;
@@ -20,7 +19,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsEditGamesDialogOpen
         {
             get => _isEditGamesDialogOpen;
-            set => SetProperty(ref _isEditGamesDialogOpen, value);
+            set
+            {
+                if (SetProperty(ref _isEditGamesDialogOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private Game? _editGamesSelectedGame;
@@ -63,7 +66,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsEditGameFormOpen
         {
             get => _isEditGameFormOpen;
-            set => SetProperty(ref _isEditGameFormOpen, value);
+            set
+            {
+                if (SetProperty(ref _isEditGameFormOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private string _editGameName = string.Empty;
@@ -161,9 +168,6 @@ namespace SaveManager.UI.ViewModels
 
                 RefreshGamesList();
 
-                // re-point selection at the refreshed instance; if it was the active
-                // game, this reuses SelectedGame's existing cascade to clear
-                // Profiles/Saves, since the backup path may have changed.
                 if (wasSelectedGame)
                     SelectedGame = Games.FirstOrDefault(g => g.Id == targetId);
 
@@ -271,7 +275,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsDeleteGameConfirmOpen
         {
             get => _isDeleteGameConfirmOpen;
-            set => SetProperty(ref _isDeleteGameConfirmOpen, value);
+            set
+            {
+                if (SetProperty(ref _isDeleteGameConfirmOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         [RelayCommand]

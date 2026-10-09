@@ -14,7 +14,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsEditProfilesDialogOpen
         {
             get => _isEditProfilesDialogOpen;
-            set => SetProperty(ref _isEditProfilesDialogOpen, value);
+            set
+            {
+                if (SetProperty(ref _isEditProfilesDialogOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private Profile? _editProfilesSelectedProfile;
@@ -57,7 +61,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsEditProfileFormOpen
         {
             get => _isEditProfileFormOpen;
-            set => SetProperty(ref _isEditProfileFormOpen, value);
+            set
+            {
+                if (SetProperty(ref _isEditProfileFormOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private string _editProfileName = string.Empty;
@@ -123,9 +131,6 @@ namespace SaveManager.UI.ViewModels
 
                 EditProfilesSelectedProfile = Profiles.FirstOrDefault(p => p.Name == updatedProfile.Name);
 
-                // re-point selection at the refreshed instance; if it was the active
-                // profile, this reuses SelectedProfile's existing cascade to clear
-                // Saves, since their cached paths pointed at the old folder name.
                 if (wasSelectedProfile)
                     SelectedProfile = EditProfilesSelectedProfile;
 
@@ -148,7 +153,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsDeleteProfileConfirmOpen
         {
             get => _isDeleteProfileConfirmOpen;
-            set => SetProperty(ref _isDeleteProfileConfirmOpen, value);
+            set
+            {
+                if (SetProperty(ref _isDeleteProfileConfirmOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         [RelayCommand]

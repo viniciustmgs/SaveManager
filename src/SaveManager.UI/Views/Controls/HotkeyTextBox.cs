@@ -1,19 +1,21 @@
-using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using SaveManager.UI.HotKeys;
+using System;
 
 namespace SaveManager.UI.Views.Controls
 {
-    /// A read-only TextBox that captures a single key combination and displays it
-    /// as a human readable gesture instead of the typed character.
-    /// the stored value stays parseable by <see cref="KeyGesture.Parse(string)"/>.
     public class HotkeyTextBox : TextBox
     {
-        public const string DefaultPlaceholder = "Press the Key";
+        public const string DefaultPlaceholder = "Press a Key";
+        public const string UnsupportedPlaceholder = "Key not supported";
 
         public static readonly SolidColorBrush DefaultPlaceholderForeground =
             new(Color.FromRgb(0x88, 0x88, 0x88));
+
+        public static readonly SolidColorBrush ErrorPlaceholderForeground =
+            new(Color.FromRgb(0xF4, 0x43, 0x36));
 
         protected override Type StyleKeyOverride => typeof(TextBox);
 
@@ -33,6 +35,7 @@ namespace SaveManager.UI.Views.Controls
             base.OnGotFocus(e);
 
             Text = string.Empty;
+            PlaceholderForeground = DefaultPlaceholderForeground;
             PlaceholderText = DefaultPlaceholder;
         }
 
@@ -53,11 +56,25 @@ namespace SaveManager.UI.Views.Controls
                 return;
             }
 
-            Text = new KeyGesture(e.Key, e.KeyModifiers).ToString();
+            var gesture = new KeyGesture(e.Key, e.KeyModifiers);
+
+            if (!HotKeyGestureConverter.TryConvert(gesture, out _))
+            {
+                Text = string.Empty;
+                PlaceholderForeground = ErrorPlaceholderForeground;
+                PlaceholderText = UnsupportedPlaceholder;
+
+                e.Handled = true;
+                return;
+            }
+
+            Text = gesture.ToString();
             e.Handled = true;
 
-            TopLevel.GetTopLevel(this)?.FocusManager?.Focus(null);
+            Blur();
         }
+
+        private void Blur() => TopLevel.GetTopLevel(this)?.FocusManager?.Focus(null);
 
         private static bool IsModifier(Key key) => key
             is Key.LeftCtrl or Key.RightCtrl

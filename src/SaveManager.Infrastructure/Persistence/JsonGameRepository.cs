@@ -1,6 +1,5 @@
 ﻿using SaveManager.Domain.Entities;
 using SaveManager.Domain.Interfaces;
-using SaveManager.Infrastructure.Persistence.Models;
 
 namespace SaveManager.Infrastructure.Persistence
 {

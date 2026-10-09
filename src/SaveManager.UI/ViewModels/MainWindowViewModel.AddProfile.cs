@@ -10,7 +10,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsAddProfileDialogOpen
         {
             get => _isAddProfileDialogOpen;
-            set => SetProperty(ref _isAddProfileDialogOpen, value);
+            set
+            {
+                if (SetProperty(ref _isAddProfileDialogOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private string _newProfileName = string.Empty;

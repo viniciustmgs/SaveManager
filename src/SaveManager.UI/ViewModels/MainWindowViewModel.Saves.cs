@@ -14,7 +14,8 @@ namespace SaveManager.UI.ViewModels
             try
             {
                 var save = _createSave.Execute(SelectedProfile, SelectedGame);
-                Saves.Add(save);
+                _allSaves.Add(save);
+                RebuildSaves();
                 await Toast.Show("Save created successfully!", isSuccess: true);
             }
             catch (Exception ex)
@@ -60,8 +61,12 @@ namespace SaveManager.UI.ViewModels
         {
             if (SelectedSave == null) return;
 
-            _deleteSave.Execute(SelectedSave);
-            Saves.Remove(SelectedSave);
+            var doomed = SelectedSave;
+
+            _deleteSave.Execute(doomed);
+            _allSaves.Remove(doomed);
+            RebuildSaves();
+
             SelectedSave = null;
         }
     }

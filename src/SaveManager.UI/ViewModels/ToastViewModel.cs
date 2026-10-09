@@ -29,14 +29,29 @@ namespace SaveManager.UI.ViewModels
             set => SetProperty(ref _isSuccess, value);
         }
 
-        public async Task Show(string message, bool isSuccess, int durationMs = 3000)
+        private bool _isWarning;
+        public bool IsWarning
         {
-            // cancels any previous toast still visible
+            get => _isWarning;
+            set => SetProperty(ref _isWarning, value);
+        }
+
+        private bool _isError;
+        public bool IsError
+        {
+            get => _isError;
+            set => SetProperty(ref _isError, value);
+        }
+
+        public async Task Show(string message, bool isSuccess, bool isWarning = false, int durationMs = 3000)
+        {
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
 
             Message = message;
-            IsSuccess = isSuccess;
+            IsSuccess = isSuccess && !isWarning;
+            IsWarning = isWarning;
+            IsError = !isSuccess && !isWarning;
             IsVisible = true;
 
             try

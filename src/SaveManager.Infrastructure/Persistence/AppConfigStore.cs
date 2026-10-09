@@ -3,36 +3,46 @@ using System.Text.Json;
 
 namespace SaveManager.Infrastructure.Persistence
 {
-    /// single owner of config.json. Every writer goes through load -> mutate -> save so
-    /// that saving one section never rolls back another section's changes.
+    // single owner of config.json
     public class AppConfigStore
     {
-        private static readonly string ConfigPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "SaveManager",
-            "config.json"
-        );
-
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
             WriteIndented = true
         };
 
+        private readonly string _configPath;
+
+        public AppConfigStore() : this(DefaultConfigPath())
+        {
+        }
+
+        public AppConfigStore(string configPath)
+        {
+            _configPath = configPath;
+        }
+
+        public static string DefaultConfigPath() => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "SaveManager",
+            "config.json"
+        );
+
         public AppConfig Load()
         {
-            if (!File.Exists(ConfigPath))
+            if (!File.Exists(_configPath))
                 return new AppConfig();
 
-            var json = File.ReadAllText(ConfigPath);
+            var json = File.ReadAllText(_configPath);
             return JsonSerializer.Deserialize<AppConfig>(json) ?? new AppConfig();
         }
 
         public void Save(AppConfig config)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(ConfigPath)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(_configPath)!);
 
             var json = JsonSerializer.Serialize(config, SerializerOptions);
-            File.WriteAllText(ConfigPath, json);
+            File.WriteAllText(_configPath, json);
         }
     }
 }

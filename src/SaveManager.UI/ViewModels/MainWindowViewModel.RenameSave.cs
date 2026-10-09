@@ -13,7 +13,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsRenameSaveDialogOpen
         {
             get => _isRenameSaveDialogOpen;
-            set => SetProperty(ref _isRenameSaveDialogOpen, value);
+            set
+            {
+                if (SetProperty(ref _isRenameSaveDialogOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private string _renameSaveName = string.Empty;
@@ -71,12 +75,14 @@ namespace SaveManager.UI.ViewModels
                 var target = _renameSaveTarget;
                 var updatedSave = _renameSave.Execute(SelectedGame, target, RenameSaveName.Trim());
 
-                var index = Saves.IndexOf(target);
+                var index = _allSaves.IndexOf(target);
                 if (index >= 0)
-                    Saves[index] = updatedSave;
+                    _allSaves[index] = updatedSave;
 
                 if (SelectedSave == target)
                     SelectedSave = updatedSave;
+
+                RebuildSaves();
 
                 IsRenameSaveDialogOpen = false;
                 _renameSaveTarget = null;

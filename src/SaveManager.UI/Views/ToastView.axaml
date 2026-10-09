@@ -32,7 +32,23 @@
                 BorderThickness="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                IsVisible="{Binding !#Root.Toast.IsSuccess}">
+                IsVisible="{Binding #Root.Toast.IsError}">
+            <TextBlock Text="{Binding #Root.Toast.Message}"
+                       Foreground="White"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+        </Border>
+
+        <!-- warning toast, used when something is switched off on purpose -->
+        <Border CornerRadius="8"
+                Padding="16,10"
+                MaxWidth="300"
+                Background="#333333"
+                BorderBrush="#FFC107"
+                BorderThickness="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsVisible="{Binding #Root.Toast.IsWarning}">
             <TextBlock Text="{Binding #Root.Toast.Message}"
                        Foreground="White"
                        TextWrapping="Wrap"

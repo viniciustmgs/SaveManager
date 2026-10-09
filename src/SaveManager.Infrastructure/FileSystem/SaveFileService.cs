@@ -121,6 +121,9 @@ namespace SaveManager.Infrastructure.FileSystem
 
                 var savePath = Path.Combine(profile.FolderPath, saveName);
                 File.Copy(game.SavePath, savePath, overwrite: true);
+                
+                // some weird shit was happening with the file timestamp on windows, so I have to set it manually for safety
+                File.SetCreationTime(savePath, DateTime.Now);
 
                 return new Save
                 {
@@ -133,6 +136,9 @@ namespace SaveManager.Infrastructure.FileSystem
             {
                 var savePath = Path.Combine(profile.FolderPath, saveName);
                 CopyDirectory(game.SavePath, savePath);
+
+                // same as above
+                Directory.SetCreationTime(savePath, DateTime.Now);
 
                 return new Save
                 {

@@ -26,6 +26,8 @@ namespace SaveManager.Application.DI
             // use cases - save
             services.AddTransient<CreateSaveUseCase>();
             services.AddTransient<GetSavesUseCase>();
+            services.AddTransient<SortSavesUseCase>();
+            services.AddTransient<FilterSavesUseCase>();
             services.AddTransient<LoadSaveUseCase>();
             services.AddTransient<ReplaceSaveUseCase>();
             services.AddTransient<DeleteSaveUseCase>();

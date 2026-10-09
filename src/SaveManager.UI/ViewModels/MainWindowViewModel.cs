@@ -5,7 +5,10 @@ using SaveManager.Application.UseCases.Profile;
 using SaveManager.Application.UseCases.Save;
 using SaveManager.Application.UseCases.Settings;
 using SaveManager.Domain.Entities;
+using SaveManager.Domain.Enums;
 using SaveManager.UI.DI;
+using SaveManager.UI.HotKeys;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace SaveManager.UI.ViewModels
@@ -15,6 +18,8 @@ namespace SaveManager.UI.ViewModels
         private readonly GetGamesUseCase _getGames;
         private readonly GetProfilesUseCase _getProfiles;
         private readonly GetSavesUseCase _getSaves;
+        private readonly SortSavesUseCase _sortSaves;
+        private readonly FilterSavesUseCase _filterSaves;
         private readonly CreateSaveUseCase _createSave;
         private readonly LoadSaveUseCase _loadSave;
         private readonly ReplaceSaveUseCase _replaceSave;
@@ -33,6 +38,8 @@ namespace SaveManager.UI.ViewModels
         private int _selectedGameLoadVersion;
         private int _selectedProfileLoadVersion;
 
+        private HotKeyCoordinator? _hotKeys;
+
         public ToastViewModel Toast { get; } = new();
 
         private ObservableCollection<Game> _games = [];
@@ -49,11 +56,71 @@ namespace SaveManager.UI.ViewModels
             set => SetProperty(ref _profiles, value);
         }
 
+        private readonly List<Save> _allSaves = [];
+
         private ObservableCollection<Save> _saves = [];
         public ObservableCollection<Save> Saves
         {
             get => _saves;
             set => SetProperty(ref _saves, value);
+        }
+
+        private SaveSortOption _selectedSortOption = SaveSortOption.Created;
+        public SaveSortOption SelectedSortOption
+        {
+            get => _selectedSortOption;
+            set
+            {
+                if (SetProperty(ref _selectedSortOption, value))
+                    RebuildSaves();
+            }
+        }
+
+        public IReadOnlyList<SaveSortOption> SortOptions { get; } =
+        [
+            SaveSortOption.Created,
+            SaveSortOption.AlphabetAscending,
+            SaveSortOption.AlphabetDescending
+        ];
+
+        private string _saveSearchText = string.Empty;
+        public string SaveSearchText
+        {
+            get => _saveSearchText;
+            set
+            {
+                if (SetProperty(ref _saveSearchText, value))
+                    RebuildSaves();
+            }
+        }
+
+        public bool IsSaveSearchActive => !string.IsNullOrWhiteSpace(SaveSearchText);
+
+        private void RebuildSaves()
+        {
+            var selected = SelectedSave;
+
+            var visible = _sortSaves.Execute(
+                _filterSaves.Execute(_allSaves, SaveSearchText),
+                SelectedSortOption);
+
+            Saves.Clear();
+
+            foreach (var save in visible)
+                Saves.Add(save);
+
+            if (selected is not null && visible.Contains(selected))
+                SelectedSave = selected;
+            else if (selected is not null)
+                SelectedSave = null;
+        }
+
+        private void SetAllSaves(IEnumerable<Save> saves)
+        {
+            _allSaves.Clear();
+            _allSaves.AddRange(saves);
+
+            RebuildSaves();
         }
 
         private Game? _selectedGame;
@@ -69,7 +136,7 @@ namespace SaveManager.UI.ViewModels
                     OnPropertyChanged(nameof(SelectedGameDisplayText));
 
                     Profiles = [];
-                    Saves = [];
+                    SetAllSaves([]);
                     SelectedProfile = null;
                     SelectedSave = null;
                 }
@@ -91,7 +158,7 @@ namespace SaveManager.UI.ViewModels
                     OnPropertyChanged(nameof(CanManageSaves));
                     OnPropertyChanged(nameof(SelectedProfileDisplayText));
 
-                    Saves = [];
+                    SetAllSaves([]);
                     SelectedSave = null;
                 }
             }
@@ -121,6 +188,8 @@ namespace SaveManager.UI.ViewModels
             _getGames = AppServiceProvider.GetService<GetGamesUseCase>();
             _getProfiles = AppServiceProvider.GetService<GetProfilesUseCase>();
             _getSaves = AppServiceProvider.GetService<GetSavesUseCase>();
+            _sortSaves = AppServiceProvider.GetService<SortSavesUseCase>();
+            _filterSaves = AppServiceProvider.GetService<FilterSavesUseCase>();
             _createSave = AppServiceProvider.GetService<CreateSaveUseCase>();
             _loadSave = AppServiceProvider.GetService<LoadSaveUseCase>();
             _replaceSave = AppServiceProvider.GetService<ReplaceSaveUseCase>();
@@ -148,7 +217,7 @@ namespace SaveManager.UI.ViewModels
         {
             Games = new ObservableCollection<Game>(_getGames.Execute());
             Profiles = [];
-            Saves = [];
+            SetAllSaves([]);
             SelectedGame = null;
             SelectedProfile = null;
             SelectedSave = null;

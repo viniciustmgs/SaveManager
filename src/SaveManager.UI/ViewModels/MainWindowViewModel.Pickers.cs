@@ -12,7 +12,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsGamePickerOpen
         {
             get => _isGamePickerOpen;
-            set => SetProperty(ref _isGamePickerOpen, value);
+            set
+            {
+                if (SetProperty(ref _isGamePickerOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private Game? _pendingSelectedGame;
@@ -32,7 +36,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsProfilePickerOpen
         {
             get => _isProfilePickerOpen;
-            set => SetProperty(ref _isProfilePickerOpen, value);
+            set
+            {
+                if (SetProperty(ref _isProfilePickerOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private Profile? _pendingSelectedProfile;
@@ -156,7 +164,7 @@ namespace SaveManager.UI.ViewModels
                 if (SelectedProfile?.FolderPath != profile.FolderPath)
                     return;
 
-                Saves = new ObservableCollection<Save>(saves);
+                SetAllSaves(saves);
             }
             catch (Exception ex)
             {

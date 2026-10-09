@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls.Shapes;
-using Avalonia.Platform.Storage;
+﻿using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using SaveManager.Application.Common;
 using SaveManager.Domain.Enums;
@@ -15,7 +14,11 @@ namespace SaveManager.UI.ViewModels
         public bool IsAddGameDialogOpen
         {
             get => _isAddGameDialogOpen;
-            set => SetProperty(ref _isAddGameDialogOpen, value);
+            set
+            {
+                if (SetProperty(ref _isAddGameDialogOpen, value))
+                    NotifyOverlayStateChanged();
+            }
         }
 
         private string _newGameName = string.Empty;

@@ -65,6 +65,7 @@
                         <Button Grid.Column="2"
                                 Width="40" Height="40"
                                 VerticalAlignment="Bottom"
+                                IsVisible="{Binding CanConfigureHotkeys}"
                                 Command="{Binding OpenSettingsCommand}">
                             <material:MaterialIcon Kind="Cog" Width="20" Height="20" />
                         </Button>
@@ -107,14 +108,25 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Sort by:" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Width="120"
-                                    IsEnabled="{Binding CanManageSaves}">
-                                <TextBlock Text="Alphabet" />
-                            </Button>
+                            <ComboBox Width="130"
+                                      HorizontalAlignment="Left"
+                                      IsEnabled="{Binding CanManageSaves}"
+                                      ItemsSource="{Binding SortOptions}"
+                                      SelectedItem="{Binding SelectedSortOption}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={x:Static vm:SaveSortOptionToTextConverter.Instance}}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>                            </ComboBox>
 
-                            <TextBox Width="280"
+                            <TextBox x:Name="SearchBox"
+                                     Width="280"
                                      IsEnabled="{Binding CanManageSaves}"
-                                     PlaceholderText="Search..." />
+                                     PlaceholderText="Search (Ctrl+F)"
+                                     Text="{Binding SaveSearchText, Mode=TwoWay}"
+                                     KeyDown="OnSearchBoxKeyDown"
+                                     GotFocus="OnSearchBoxGotFocus"
+                                     LostFocus="OnSearchBoxLostFocus" />
                         </StackPanel>
                     </StackPanel>
 
@@ -163,7 +175,8 @@
                 </StackPanel>
 
                 <!-- save list -->
-                <ListBox Margin="12,8,12,0"
+                <ListBox x:Name="SavesList"
+                         Margin="12,8,12,0"
                          Background="#424242"
                          ItemsSource="{Binding Saves}"
                          SelectedItem="{Binding SelectedSave}">
@@ -207,15 +220,23 @@
                                        FontSize="18"
                                        FontWeight="SemiBold" />
 
-                            <ListBox Height="260"
-                                     ItemsSource="{Binding Games}"
-                                     SelectedItem="{Binding PendingSelectedGame}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="domain:Game">
-                                        <TextBlock Text="{Binding Name}" Padding="4,5" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <Grid Height="260">
+                                <ListBox ItemsSource="{Binding Games}"
+                                         SelectedItem="{Binding PendingSelectedGame}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:Game">
+                                            <TextBlock Text="{Binding Name}" Padding="4,5" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBlock x:Name="NoGamesPlaceholder"
+                                           Text="No Games Found"
+                                           Opacity="0.6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding Games.Count, Converter={x:Static vm:CountIsZeroVisibilityConverter.Instance}}" />
+                            </Grid>
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -384,15 +405,23 @@
                                        FontSize="18"
                                        FontWeight="SemiBold" />
 
-                            <ListBox Height="260"
-                                     ItemsSource="{Binding Games}"
-                                     SelectedItem="{Binding EditGamesSelectedGame}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="domain:Game">
-                                        <TextBlock Text="{Binding Name}" Padding="4,5" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <Grid Height="260">
+                                <ListBox ItemsSource="{Binding Games}"
+                                         SelectedItem="{Binding EditGamesSelectedGame}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:Game">
+                                            <TextBlock Text="{Binding Name}" Padding="4,5" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBlock x:Name="NoGamesInEditPlaceholder"
+                                           Text="No Games Found"
+                                           Opacity="0.6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding Games.Count, Converter={x:Static vm:CountIsZeroVisibilityConverter.Instance}}" />
+                            </Grid>
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -619,15 +648,23 @@
                                        FontSize="18"
                                        FontWeight="SemiBold" />
 
-                            <ListBox Height="260"
-                                     ItemsSource="{Binding Profiles}"
-                                     SelectedItem="{Binding PendingSelectedProfile}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="domain:Profile">
-                                        <TextBlock Text="{Binding Name}" Padding="4,5" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <Grid Height="260">
+                                <ListBox ItemsSource="{Binding Profiles}"
+                                         SelectedItem="{Binding PendingSelectedProfile}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:Profile">
+                                            <TextBlock Text="{Binding Name}" Padding="4,5" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBlock x:Name="NoProfilesPlaceholder"
+                                           Text="No Profiles Found"
+                                           Opacity="0.6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding Profiles.Count, Converter={x:Static vm:CountIsZeroVisibilityConverter.Instance}}" />
+                            </Grid>
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -746,15 +783,23 @@
                                        FontSize="18"
                                        FontWeight="SemiBold" />
 
-                            <ListBox Height="260"
-                                     ItemsSource="{Binding Profiles}"
-                                     SelectedItem="{Binding EditProfilesSelectedProfile}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="domain:Profile">
-                                        <TextBlock Text="{Binding Name}" Padding="4,5" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <Grid Height="260">
+                                <ListBox ItemsSource="{Binding Profiles}"
+                                         SelectedItem="{Binding EditProfilesSelectedProfile}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:Profile">
+                                            <TextBlock Text="{Binding Name}" Padding="4,5" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBlock x:Name="NoProfilesInEditPlaceholder"
+                                           Text="No Profiles Found"
+                                           Opacity="0.6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding Profiles.Count, Converter={x:Static vm:CountIsZeroVisibilityConverter.Instance}}" />
+                            </Grid>
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -1019,6 +1064,13 @@
 
                             <CheckBox Content="Global Hotkeys"
                                       IsChecked="{Binding GlobalHotkeysEnabled}" />
+
+                            <!-- shown when no backend could be created for this OS or session -->
+                            <TextBlock Text="{Binding HotKeyUnsupportedReason}"
+                                       Foreground="#F44336"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"
+                                       IsVisible="{Binding HasHotKeySupportIssue}" />
 
                             <Separator Margin="0,4,0,4" />
 
