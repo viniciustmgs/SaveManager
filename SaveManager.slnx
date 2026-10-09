@@ -5,4 +5,11 @@
     <Project Path="src/SaveManager.Infrastructure/SaveManager.Infrastructure.csproj" />
     <Project Path="src/SaveManager.UI/SaveManager.UI.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SaveManager.Application.Tests/SaveManager.Application.Tests.csproj" />
+    <Project Path="tests/SaveManager.Domain.Tests/SaveManager.Domain.Tests.csproj" />
+    <Project Path="tests/SaveManager.Infrastructure.Tests/SaveManager.Infrastructure.Tests.csproj" />
+    <Project Path="tests/SaveManager.UI.Tests/SaveManager.UI.Tests.csproj" />
+    <Project Path="tests/SaveManager.UI.Headless.Tests/SaveManager.UI.Headless.Tests.csproj" />
+  </Folder>
 </Solution>
