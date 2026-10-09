@@ -1,9 +1,12 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Interactivity;
 using Material.Icons;
 using Material.Icons.Avalonia;
+using System;
 
 namespace SaveManager.UI.Views.Controls
 {
@@ -27,8 +30,14 @@ namespace SaveManager.UI.Views.Controls
             set => SetValue(ShowMaximizeButtonProperty, value);
         }
 
+        private static readonly int[] IconPixelSizes = [16, 24, 32];
+
+        private static readonly string[] IconFileNames =
+            ["icon-16.png", "icon-24.png", "icon-32.png"];
+
         private Window? _window;
         private MaterialIcon? _maximizeIcon;
+        private Image? _appIcon;
 
         public TitleBar()
         {
@@ -42,6 +51,9 @@ namespace SaveManager.UI.Views.Controls
         {
             _window = TopLevel.GetTopLevel(this) as Window;
             _maximizeIcon = this.FindControl<MaterialIcon>("MaximizeIcon");
+            _appIcon = this.FindControl<Image>("AppIcon");
+
+            ApplyAppIcon();
 
             if (_window != null)
             {
@@ -62,6 +74,30 @@ namespace SaveManager.UI.Views.Controls
         {
             if (e.Property == Window.WindowStateProperty)
                 UpdateMaximizeIcon();
+        }
+
+        private void ApplyAppIcon()
+        {
+            if (_appIcon is null)
+                return;
+
+            var scaling = (VisualRoot as TopLevel)?.RenderScaling ?? 1.0;
+            var wanted = 16.0 * scaling;
+
+            var index = 0;
+
+            for (var i = 0; i < IconPixelSizes.Length; i++)
+            {
+                index = i;
+
+                if (IconPixelSizes[i] >= wanted)
+                    break;
+            }
+
+            using var stream = AssetLoader.Open(
+                new Uri($"avares://SaveManager.UI/Assets/{IconFileNames[index]}"));
+
+            _appIcon.Source = new Bitmap(stream);
         }
 
         private void UpdateMaximizeIcon()

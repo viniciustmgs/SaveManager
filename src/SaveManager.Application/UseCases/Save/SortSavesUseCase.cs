@@ -9,8 +9,6 @@ namespace SaveManager.Application.UseCases.Save
         {
             return option switch
             {
-                // the filesystem hands these back in creation order, but only incidentally,
-                // so order by the timestamp explicitly to make it a real guarantee
                 SaveSortOption.Created =>
                     saves.OrderBy(save => save.CreatedAt).ToList(),
 

@@ -44,12 +44,20 @@
                 Background="Transparent"
                 PointerPressed="OnDragArea_PointerPressed"
                 DoubleTapped="OnDragArea_DoubleTapped">
-            <TextBlock Text="{Binding $parent[Window].Title}"
-                       IsHitTestVisible="False"
-                       VerticalAlignment="Center"
-                       Margin="12,0,0,0"
-                       Foreground="#CCCCCC"
-                       FontSize="12" />
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0">
+                <Image x:Name="AppIcon"
+                       Width="16"
+                       Height="16"
+                       VerticalAlignment="Center" />
+                <TextBlock Text="{Binding $parent[Window].Title}"
+                           IsHitTestVisible="False"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           Foreground="#CCCCCC"
+                           FontSize="12" />
+            </StackPanel>
         </Border>
 
         <StackPanel Grid.Column="1" Orientation="Horizontal">

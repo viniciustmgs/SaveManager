@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using SaveManager.Domain.Entities;
 using System;
 using System.Threading.Tasks;
 
@@ -56,18 +57,75 @@ namespace SaveManager.UI.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void DeleteSave()
+        private Save? _deleteSaveTarget;
+
+        private bool _isDeleteSaveConfirmOpen;
+        public bool IsDeleteSaveConfirmOpen
         {
-            if (SelectedSave == null) return;
+            get => _isDeleteSaveConfirmOpen;
+            set
+            {
+                if (SetProperty(ref _isDeleteSaveConfirmOpen, value))
+                    NotifyOverlayStateChanged();
+            }
+        }
 
-            var doomed = SelectedSave;
+        public string DeleteSaveConfirmMessage =>
+            _deleteSaveTarget is null
+                ? string.Empty
+                : $"{_deleteSaveTarget.Name} is going to be deleted, do you want to proceed?";
 
-            _deleteSave.Execute(doomed);
-            _allSaves.Remove(doomed);
-            RebuildSaves();
+        [RelayCommand]
+        private void DeleteSelectedSave()
+        {
+            if (SelectedSave is null)
+                return;
 
-            SelectedSave = null;
+            OpenDeleteSaveConfirm(SelectedSave);
+        }
+
+        public void RequestDeleteSave(Save save) => OpenDeleteSaveConfirm(save);
+
+        private void OpenDeleteSaveConfirm(Save save)
+        {
+            _deleteSaveTarget = save;
+
+            OnPropertyChanged(nameof(DeleteSaveConfirmMessage));
+            IsDeleteSaveConfirmOpen = true;
+        }
+
+        [RelayCommand]
+        private void CancelDeleteSave()
+        {
+            IsDeleteSaveConfirmOpen = false;
+            _deleteSaveTarget = null;
+        }
+
+        [RelayCommand]
+        private async Task ConfirmDeleteSave()
+        {
+            if (_deleteSaveTarget is null)
+                return;
+
+            var doomed = _deleteSaveTarget;
+
+            IsDeleteSaveConfirmOpen = false;
+            _deleteSaveTarget = null;
+
+            try
+            {
+                _deleteSave.Execute(doomed);
+                _allSaves.Remove(doomed);
+                RebuildSaves();
+
+                SelectedSave = null;
+
+                await Toast.Show("Save deleted successfully!", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to delete save: {ex.Message}", isSuccess: false);
+            }
         }
     }
 }

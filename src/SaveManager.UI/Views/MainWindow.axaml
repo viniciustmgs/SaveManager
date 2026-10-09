@@ -117,7 +117,8 @@
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Converter={x:Static vm:SaveSortOptionToTextConverter.Instance}}" />
                                     </DataTemplate>
-                                </ComboBox.ItemTemplate>                            </ComboBox>
+                                </ComboBox.ItemTemplate>      
+                            </ComboBox>
 
                             <TextBox x:Name="SearchBox"
                                      Width="280"
@@ -166,7 +167,7 @@
 
                     <Button Width="120"
                             IsEnabled="{Binding IsSaveSelected}"
-                            Command="{Binding DeleteSaveCommand}">
+                            Command="{Binding DeleteSelectedSaveCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <material:MaterialIcon Kind="TrashCan" Width="16" Height="16" Foreground="#F44336" />
                             <TextBlock Text="Delete Save" />
@@ -180,17 +181,21 @@
                          Background="#424242"
                          ItemsSource="{Binding Saves}"
                          SelectedItem="{Binding SelectedSave}">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="ContextMenu">
+                                <ContextMenu>
+                                    <MenuItem Header="Rename" Click="OnRenameSaveClick" />
+                                    <MenuItem Header="Delete" Click="OnDeleteSaveClick" />
+                                </ContextMenu>
+                            </Setter>
+                        </Style>
+                    </ListBox.Styles>
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="domain:Save">
                             <TextBlock Text="{Binding Name}"
                                        FontSize="12"
-                                       Padding="4,3">
-                                <TextBlock.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Rename" Click="OnRenameSaveClick" />
-                                    </ContextMenu>
-                                </TextBlock.ContextMenu>
-                            </TextBlock>
+                                       Padding="4,3" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -311,7 +316,7 @@
                                              IsEnabled="False"
                                              Text="{Binding NewGameSavePath}"
                                              TextAlignment="Right" />
-                                    <Button Width="80"
+                                    <Button Width="90"
                                             IsEnabled="{Binding IsNewGameSaveTypeSelected}"
                                             Command="{Binding BrowseNewGameSavePathCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
@@ -330,7 +335,7 @@
                                              IsEnabled="False"
                                              Text="{Binding NewGameBackupPath}"
                                              TextAlignment="Right" />
-                                    <Button Width="80"
+                                    <Button Width="90"
                                             IsEnabled="{Binding IsNewGameSaveTypeSelected}"
                                             Command="{Binding BrowseNewGameBackupPathCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
@@ -500,7 +505,7 @@
                                              IsEnabled="False"
                                              Text="{Binding EditGameSavePath}"
                                              TextAlignment="Right" />
-                                    <Button Width="80"
+                                    <Button Width="90"
                                             Command="{Binding BrowseEditGameSavePathCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
@@ -518,7 +523,7 @@
                                              IsEnabled="False"
                                              Text="{Binding EditGameBackupPath}"
                                              TextAlignment="Right" />
-                                    <Button Width="80"
+                                    <Button Width="90"
                                             Command="{Binding BrowseEditGameBackupPathCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <material:MaterialIcon Kind="Magnify" Width="16" Height="16" />
@@ -1170,6 +1175,59 @@
                                 </Button>
                             </Grid>
 
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- delete save confirmation overlay -->
+            <Border IsVisible="{Binding IsDeleteSaveConfirmOpen}"
+                    Background="#AA000000"
+                    ZIndex="103">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="380"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+
+                            <TextBlock Text="Delete Save"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <TextBlock x:Name="DeleteSavePromptText"
+                                       Text="{Binding DeleteSaveConfirmMessage}"
+                                       TextWrapping="Wrap" />
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="90"
+                                        Command="{Binding CancelDeleteSaveCommand}">
+                                    <TextBlock Text="Cancel" />
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="90"
+                                        Command="{Binding ConfirmDeleteSaveCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="TrashCan" Width="16" Height="16" Foreground="#F44336" />
+                                        <TextBlock Text="Delete" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>

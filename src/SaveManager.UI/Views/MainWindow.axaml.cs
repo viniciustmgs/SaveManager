@@ -1,8 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using SaveManager.Domain.Entities;
 using SaveManager.UI.ViewModels;
+using System;
 
 namespace SaveManager.UI.Views
 {
@@ -12,8 +15,17 @@ namespace SaveManager.UI.Views
         {
             InitializeComponent();
 
+            Icon = LoadWindowIcon();
+
             if (DataContext is MainWindowViewModel vm)
                 vm.SetStorageProvider(StorageProvider);
+        }
+
+        private static WindowIcon LoadWindowIcon()
+        {
+            using var stream = AssetLoader.Open(new Uri("avares://SaveManager.UI/Assets/appicon.ico"));
+
+            return new WindowIcon(stream);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -24,7 +36,33 @@ namespace SaveManager.UI.Views
             {
                 FocusSearchBox();
                 e.Handled = true;
+                return;
             }
+
+            if (e.Key == Key.Delete)
+            {
+                if (TryRequestDeleteSave(out var handled))
+                    e.Handled = handled;
+            }
+        }
+
+        private bool TryRequestDeleteSave(out bool handled)
+        {
+            handled = false;
+
+            if (DataContext is not MainWindowViewModel vm)
+                return false;
+
+            if (vm.IsAnyOverlayOpen || vm.IsSearchBoxFocused)
+                return false;
+
+            if (vm.SelectedSave is null)
+                return false;
+
+            vm.DeleteSelectedSaveCommand.Execute(null);
+            handled = true;
+
+            return true;
         }
 
         private void FocusSearchBox()
@@ -62,6 +100,12 @@ namespace SaveManager.UI.Views
         {
             if (sender is MenuItem { DataContext: Save save } && DataContext is MainWindowViewModel vm)
                 vm.OpenRenameSaveCommand.Execute(save);
+        }
+
+        private void OnDeleteSaveClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem { DataContext: Save save } && DataContext is MainWindowViewModel vm)
+                vm.RequestDeleteSave(save);
         }
     }
 }
