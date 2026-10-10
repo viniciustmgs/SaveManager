@@ -23,7 +23,7 @@ namespace SaveManager.UI.Views
 
         private static WindowIcon LoadWindowIcon()
         {
-            using var stream = AssetLoader.Open(new Uri("avares://SaveManager.UI/Assets/appicon.ico"));
+            using var stream = AssetLoader.Open(new Uri("avares://SaveManager/Assets/appicon.ico"));
 
             return new WindowIcon(stream);
         }

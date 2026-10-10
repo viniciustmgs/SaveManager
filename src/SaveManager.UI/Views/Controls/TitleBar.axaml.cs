@@ -95,7 +95,7 @@ namespace SaveManager.UI.Views.Controls
             }
 
             using var stream = AssetLoader.Open(
-                new Uri($"avares://SaveManager.UI/Assets/{IconFileNames[index]}"));
+                new Uri($"avares://SaveManager/Assets/{IconFileNames[index]}"));
 
             _appIcon.Source = new Bitmap(stream);
         }
