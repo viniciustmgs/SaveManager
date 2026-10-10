@@ -11,6 +11,7 @@ namespace SaveManager.Infrastructure.HotKeys.Windows
     {
         private const int WH_KEYBOARD_LL = 13;
         private const uint WM_QUIT = 0x0012;
+        private const int MaxHookInstallAttempts = 3;
 
         private readonly AutoResetEvent _ready = new(false);
         private readonly HotKeyHookMatcher _matcher = new();
@@ -86,29 +87,57 @@ namespace SaveManager.Infrastructure.HotKeys.Windows
         {
             _threadId = NativeMethods.GetCurrentThreadId();
 
-            var module = NativeMethods.GetModuleHandle(null);
-
-            _hook = NativeMethods.SetWindowsHookEx(
-                WH_KEYBOARD_LL, _callback!, module, 0);
-
-            if (_hook == IntPtr.Zero)
-            {
-                Debug.WriteLine(
-                    $"SaveManager: SetWindowsHookEx failed with error {Marshal.GetLastWin32Error()}.");
-            }
+            InstallHook();
 
             _ready.Set();
 
-            while (!_stopRequested && NativeMethods.GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
+            while (true)
             {
+                var result = NativeMethods.GetMessage(out var msg, IntPtr.Zero, 0, 0);
+
+                switch (KeyboardHookPump.Decide(_stopRequested, result))
+                {
+                    case KeyboardHookPump.Outcome.Stop:
+                        goto exit;
+
+                    case KeyboardHookPump.Outcome.TransientError:
+                        Debug.WriteLine(
+                            $"SaveManager: GetMessage failed with error {Marshal.GetLastWin32Error()}; retrying.");
+
+                        NativeMethods.Sleep(50);
+                        continue;
+                }
+
                 NativeMethods.TranslateMessage(ref msg);
                 NativeMethods.DispatchMessage(ref msg);
             }
 
+        exit:
             if (_hook != IntPtr.Zero)
             {
                 NativeMethods.UnhookWindowsHookEx(_hook);
                 _hook = IntPtr.Zero;
+            }
+        }
+
+        private void InstallHook()
+        {
+            var module = NativeMethods.GetModuleHandle(null);
+
+            for (var attempt = 1; attempt <= MaxHookInstallAttempts; attempt++)
+            {
+                _hook = NativeMethods.SetWindowsHookEx(WH_KEYBOARD_LL, _callback!, module, 0);
+
+                if (_hook != IntPtr.Zero)
+                    return;
+
+                var error = Marshal.GetLastWin32Error();
+
+                Debug.WriteLine(
+                    $"SaveManager: SetWindowsHookEx failed with error {error} (attempt {attempt} of {MaxHookInstallAttempts}).");
+
+                if (attempt < MaxHookInstallAttempts)
+                    NativeMethods.Sleep(100);
             }
         }
 
@@ -122,8 +151,11 @@ namespace SaveManager.Infrastructure.HotKeys.Windows
                 var vk = (uint)Marshal.ReadInt32(lParam, 0);
                 var flags = (uint)Marshal.ReadInt32(lParam, 8);
 
-                if (KeyboardHookDecision.ShouldTrackModifier(code))
-                    UpdateModifiers(vk, KeyboardHookDecision.IsKeyDown(message) || KeyboardHookDecision.IsKeyUp(message));
+                if (KeyboardHookDecision.ShouldTrackModifier(code)
+                    && KeyboardHookDecision.ModifierTransition(message) is { } down)
+                {
+                    UpdateModifiers(vk, down);
+                }
 
                 if (KeyboardHookDecision.ShouldDispatch(code, message, flags, _blocked)
                     && _matcher.Match(vk, _held) is { } action)
@@ -208,6 +240,9 @@ namespace SaveManager.Infrastructure.HotKeys.Windows
 
             [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
             internal static extern IntPtr GetModuleHandle(string? lpModuleName);
+
+            [DllImport("kernel32.dll")]
+            internal static extern void Sleep(uint dwMilliseconds);
 
             [StructLayout(LayoutKind.Sequential)]
             internal struct Msg

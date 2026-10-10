@@ -37,5 +37,10 @@ namespace SaveManager.Infrastructure.HotKeys.Windows
 
         public static bool IsKeyUp(int message) =>
             message is WmKeyUp or WmSysKeyUp;
+
+        public static bool? ModifierTransition(int message) =>
+            IsKeyDown(message) ? true
+            : IsKeyUp(message) ? false
+            : null;
     }
 }

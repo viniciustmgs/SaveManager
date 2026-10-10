@@ -83,5 +83,21 @@ namespace SaveManager.Infrastructure.Tests
             Assert.False(KeyboardHookDecision.IsInjected(0));
             Assert.False(KeyboardHookDecision.IsInjected(0x01));
         }
+
+        [Theory]
+        [InlineData(0x0100, true)]
+        [InlineData(0x0104, true)]
+        [InlineData(0x0101, false)]
+        [InlineData(0x0105, false)]
+        public void ModifierTransition_SeparatesPressFromRelease(int message, bool expected)
+        {
+            Assert.Equal(expected, KeyboardHookDecision.ModifierTransition(message));
+        }
+
+        [Fact]
+        public void ModifierTransition_IsNullForUnrelatedMessages()
+        {
+            Assert.Null(KeyboardHookDecision.ModifierTransition(0x9999));
+        }
     }
 }
