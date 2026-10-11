@@ -20,7 +20,7 @@ The macOS build has not been run on real hardware yet, so it has not been publis
 
 ### Linux
 
-- The [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)
+- The **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)**
 
 ## Running on Linux
 
@@ -61,9 +61,18 @@ dotnet test SaveManager.slnx
 
 ### Publishing
 
+Windows:
+
 ```powershell
-.\publish.ps1                # all three builds
-.\publish.ps1 -Only win-sc   # just one
+.\publish.ps1                # both Windows builds
+.\publish.ps1 -Only win-fd   # just normal build
+.\publish.ps1 -Only win-sc   # just the self-contained build
 ```
 
-After publishing, the executable file lands in `publish/`
+Linux:
+
+```sh
+bash ./publish.sh
+```
+
+After publishing, the executable file lands in `publish/`.
