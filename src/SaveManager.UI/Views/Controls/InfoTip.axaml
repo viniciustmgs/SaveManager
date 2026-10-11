@@ -1,0 +1,7 @@
+<Border xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaveManager.UI.Views.Controls.InfoTip"
+        Width="14"
+        Height="14"
+        VerticalAlignment="Center"
+        Background="Transparent" />

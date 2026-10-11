@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SaveManager.Domain.Interfaces;
 using SaveManager.Infrastructure.FileSystem;
 using SaveManager.Infrastructure.Persistence;
+using SaveManager.Infrastructure.Updates;
+using System;
+using System.Net.Http;
 
 namespace SaveManager.Infrastructure.DI
 {
@@ -15,6 +18,10 @@ namespace SaveManager.Infrastructure.DI
             services.AddSingleton<IGameRepository, JsonGameRepository>();
             services.AddSingleton<ISaveFileService, SaveFileService>();
             services.AddSingleton<ISettingsRepository, JsonSettingsRepository>();
+
+            // TryAdd so tests can supply a fake
+            services.TryAddSingleton<IReleaseChecker>(_ =>
+                new GitHubReleaseChecker(new HttpClient { Timeout = TimeSpan.FromSeconds(10) }));
 
             // platform backend is picked once
             services.AddSingleton<IGlobalHotKeyService>(provider =>

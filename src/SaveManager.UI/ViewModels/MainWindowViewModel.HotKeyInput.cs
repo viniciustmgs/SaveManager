@@ -16,7 +16,9 @@ namespace SaveManager.UI.ViewModels
             || IsRenameSaveDialogOpen
             || IsDeleteSaveConfirmOpen
             || IsSettingsDialogOpen
-            || IsSettingsDiscardPromptOpen;
+            || IsSettingsDiscardPromptOpen
+            || IsHowToUseOpen
+            || IsCheckUpdatesOpen;
 
         private bool _isSearchBoxFocused;
         public bool IsSearchBoxFocused
