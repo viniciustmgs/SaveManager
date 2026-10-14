@@ -93,12 +93,10 @@ namespace SaveManager.UI.Headless.Tests
 
         public static TheoryData<string> AllOverlayFlags => new()
         {
-            nameof(MainWindowViewModel.IsGamePickerOpen),
             nameof(MainWindowViewModel.IsAddGameDialogOpen),
             nameof(MainWindowViewModel.IsEditGamesDialogOpen),
             nameof(MainWindowViewModel.IsEditGameFormOpen),
             nameof(MainWindowViewModel.IsDeleteGameConfirmOpen),
-            nameof(MainWindowViewModel.IsProfilePickerOpen),
             nameof(MainWindowViewModel.IsAddProfileDialogOpen),
             nameof(MainWindowViewModel.IsEditProfilesDialogOpen),
             nameof(MainWindowViewModel.IsEditProfileFormOpen),
@@ -170,10 +168,10 @@ namespace SaveManager.UI.Headless.Tests
 
                 var initial = service.Blocked;
 
-                vm.IsGamePickerOpen = true;
+                vm.IsAddGameDialogOpen = true;
                 var whileOpen = service.Blocked;
 
-                vm.IsGamePickerOpen = false;
+                vm.IsAddGameDialogOpen = false;
                 var afterClose = service.Blocked;
 
                 coordinator.Dispose();

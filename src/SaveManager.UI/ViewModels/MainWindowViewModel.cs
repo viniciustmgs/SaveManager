@@ -133,18 +133,16 @@ namespace SaveManager.UI.ViewModels
                 {
                     OnPropertyChanged(nameof(IsGameSelected));
                     OnPropertyChanged(nameof(CanManageSaves));
-                    OnPropertyChanged(nameof(SelectedGameDisplayText));
 
                     Profiles = [];
                     SetAllSaves([]);
                     SelectedProfile = null;
                     SelectedSave = null;
+
+                    _ = RefreshProfiles();
                 }
             }
         }
-
-        public string SelectedGameDisplayText =>
-            SelectedGame?.Name ?? "Select game";
 
         private Profile? _selectedProfile;
         public Profile? SelectedProfile
@@ -156,16 +154,14 @@ namespace SaveManager.UI.ViewModels
                 {
                     OnPropertyChanged(nameof(IsProfileSelected));
                     OnPropertyChanged(nameof(CanManageSaves));
-                    OnPropertyChanged(nameof(SelectedProfileDisplayText));
 
                     SetAllSaves([]);
                     SelectedSave = null;
+
+                    _ = RefreshSaves();
                 }
             }
         }
-
-        public string SelectedProfileDisplayText =>
-            SelectedProfile?.Name ?? "Select profile";
 
         private Save? _selectedSave;
         public Save? SelectedSave
@@ -221,8 +217,6 @@ namespace SaveManager.UI.ViewModels
             SelectedGame = null;
             SelectedProfile = null;
             SelectedSave = null;
-            PendingSelectedGame = null;
-            PendingSelectedProfile = null;
 
             _selectedGameLoadVersion++;
             _selectedProfileLoadVersion++;

@@ -282,9 +282,10 @@ namespace SaveManager.UI.Headless.Tests
 
             vm.SelectedGame = vm.Games.First();
 
-            await vm.OpenProfilePickerCommand.ExecuteAsync(null);
-            vm.PendingSelectedProfile = vm.Profiles.First();
-            await vm.ConfirmProfilePickerCommand.ExecuteAsync(null);
+            for (var i = 0; i < 100 && vm.Profiles.Count == 0; i++)
+                await Task.Delay(25);
+
+            vm.SelectedProfile = vm.Profiles.First();
 
             for (var i = 0; i < 100 && vm.Saves.Count == 0; i++)
                 await Task.Delay(25);

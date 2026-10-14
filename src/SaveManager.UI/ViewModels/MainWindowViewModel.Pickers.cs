@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using SaveManager.Domain.Entities;
 using System;
+
+﻿using SaveManager.Domain.Entities;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -8,110 +8,6 @@ namespace SaveManager.UI.ViewModels
 {
     public partial class MainWindowViewModel
     {
-        private bool _isGamePickerOpen;
-        public bool IsGamePickerOpen
-        {
-            get => _isGamePickerOpen;
-            set
-            {
-                if (SetProperty(ref _isGamePickerOpen, value))
-                    NotifyOverlayStateChanged();
-            }
-        }
-
-        private Game? _pendingSelectedGame;
-        public Game? PendingSelectedGame
-        {
-            get => _pendingSelectedGame;
-            set
-            {
-                if (SetProperty(ref _pendingSelectedGame, value))
-                    OnPropertyChanged(nameof(CanConfirmGamePicker));
-            }
-        }
-
-        public bool CanConfirmGamePicker => PendingSelectedGame != null;
-
-        private bool _isProfilePickerOpen;
-        public bool IsProfilePickerOpen
-        {
-            get => _isProfilePickerOpen;
-            set
-            {
-                if (SetProperty(ref _isProfilePickerOpen, value))
-                    NotifyOverlayStateChanged();
-            }
-        }
-
-        private Profile? _pendingSelectedProfile;
-        public Profile? PendingSelectedProfile
-        {
-            get => _pendingSelectedProfile;
-            set
-            {
-                if (SetProperty(ref _pendingSelectedProfile, value))
-                    OnPropertyChanged(nameof(CanConfirmProfilePicker));
-            }
-        }
-
-        public bool CanConfirmProfilePicker => PendingSelectedProfile != null;
-
-        [RelayCommand]
-        private void OpenGamePicker()
-        {
-            PendingSelectedGame = SelectedGame;
-            IsGamePickerOpen = true;
-        }
-
-        [RelayCommand]
-        private void CancelGamePicker()
-        {
-            IsGamePickerOpen = false;
-            PendingSelectedGame = null;
-        }
-
-        [RelayCommand]
-        private void ConfirmGamePicker()
-        {
-            if (PendingSelectedGame == null)
-                return;
-
-            SelectedGame = PendingSelectedGame;
-            IsGamePickerOpen = false;
-            PendingSelectedGame = null;
-        }
-
-        [RelayCommand]
-        private async Task OpenProfilePicker()
-        {
-            if (!IsGameSelected)
-                return;
-
-            PendingSelectedProfile = SelectedProfile;
-            IsProfilePickerOpen = true;
-
-            await RefreshProfiles();
-        }
-
-        [RelayCommand]
-        private void CancelProfilePicker()
-        {
-            IsProfilePickerOpen = false;
-            PendingSelectedProfile = null;
-        }
-
-        [RelayCommand]
-        private async Task ConfirmProfilePicker()
-        {
-            if (PendingSelectedProfile == null)
-                return;
-
-            SelectedProfile = PendingSelectedProfile;
-            IsProfilePickerOpen = false;
-            PendingSelectedProfile = null;
-
-            await RefreshSaves();
-        }
 
         private async Task RefreshProfiles()
         {

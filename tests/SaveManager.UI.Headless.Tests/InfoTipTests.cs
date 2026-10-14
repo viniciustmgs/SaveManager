@@ -191,7 +191,7 @@ namespace SaveManager.UI.Headless.Tests
 
             var vm = (MainWindowViewModel)window.DataContext!;
 
-            vm.IsGamePickerOpen = true;
+            vm.IsAddGameDialogOpen = true;
             vm.IsAddGameDialogOpen = true;
 
             return window;

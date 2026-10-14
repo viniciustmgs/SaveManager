@@ -3,12 +3,10 @@ namespace SaveManager.UI.ViewModels
     public partial class MainWindowViewModel
     {
         public bool IsAnyOverlayOpen =>
-            IsGamePickerOpen
-            || IsAddGameDialogOpen
+            IsAddGameDialogOpen
             || IsEditGamesDialogOpen
             || IsEditGameFormOpen
             || IsDeleteGameConfirmOpen
-            || IsProfilePickerOpen
             || IsAddProfileDialogOpen
             || IsEditProfilesDialogOpen
             || IsEditProfileFormOpen
