@@ -76,6 +76,8 @@ namespace SaveManager.UI.ViewModels
             {
                 _createProfile.Execute(SelectedGame.Id, NewProfileName);
 
+                await RefreshProfiles();
+
                 IsAddProfileDialogOpen = false;
                 ResetAddProfileForm();
 
