@@ -235,7 +235,7 @@ namespace SaveManager.UI.Headless.Tests
 
                 window.UpdateLayout();
 
-                var items = window.GetVisualDescendants().OfType<ListBoxItem>().ToList();
+                var items = window.GetVisualDescendants().OfType<TreeViewItem>().ToList();
 
                 return (
                     items.Count,
@@ -259,7 +259,7 @@ namespace SaveManager.UI.Headless.Tests
 
                 window.UpdateLayout();
 
-                var item = window.GetVisualDescendants().OfType<ListBoxItem>().First();
+                var item = window.GetVisualDescendants().OfType<TreeViewItem>().First();
 
                 var label = item.GetVisualDescendants().OfType<TextBlock>().First();
 

@@ -32,6 +32,11 @@ namespace SaveManager.Application.DI
             services.AddTransient<ReplaceSaveUseCase>();
             services.AddTransient<DeleteSaveUseCase>();
             services.AddTransient<RenameSaveUseCase>();
+            services.AddTransient<GetSaveFoldersUseCase>();
+            services.AddTransient<CreateSaveFolderUseCase>();
+            services.AddTransient<RenameSaveFolderUseCase>();
+            services.AddTransient<DeleteSaveFolderUseCase>();
+            services.AddTransient<MoveSaveUseCase>();
 
             // use cases - settings
             services.AddTransient<GetSettingsUseCase>();

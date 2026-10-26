@@ -49,7 +49,9 @@ namespace SaveManager.UI.ViewModels
 
             try
             {
-                var saves = await Task.Run(() => _getSaves.Execute(profile, game));
+                var (saves, folders) = await Task.Run(() => (
+                    _getSaves.Execute(profile, game),
+                    _getSaveFolders.Execute(profile, game)));
 
                 if (requestVersion != _selectedProfileLoadVersion)
                     return;
@@ -60,7 +62,7 @@ namespace SaveManager.UI.ViewModels
                 if (SelectedProfile?.FolderPath != profile.FolderPath)
                     return;
 
-                SetAllSaves(saves);
+                SetContents(saves, folders);
             }
             catch (Exception ex)
             {

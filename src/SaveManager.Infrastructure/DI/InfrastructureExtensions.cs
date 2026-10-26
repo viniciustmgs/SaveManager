@@ -1,11 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-﻿using Microsoft.Extensions.DependencyInjection;
 using SaveManager.Domain.Interfaces;
 using SaveManager.Infrastructure.FileSystem;
 using SaveManager.Infrastructure.Persistence;
 using SaveManager.Infrastructure.Updates;
-using System;
-using System.Net.Http;
 
 namespace SaveManager.Infrastructure.DI
 {

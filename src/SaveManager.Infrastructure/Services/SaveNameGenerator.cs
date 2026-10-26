@@ -13,15 +13,19 @@ namespace SaveManager.Infrastructure.Services
         private static bool Contains(List<string?> names, string candidate) =>
             names.Any(name => string.Equals(name, candidate, NameComparison));
 
-        public static string Generate(Profile profile, Game game)
+        public static string Generate(string targetDirectory, Game game)
         {
             if (game.SaveType == SaveType.SingleFile)
             {
                 var fileName = Path.GetFileNameWithoutExtension(game.SavePath);
                 var extension = Path.GetExtension(game.SavePath);
 
-                var existingFiles = Directory.GetFiles(profile.FolderPath)
+                var existingFiles = Directory.GetFiles(targetDirectory)
                     .Select(Path.GetFileName)
+                    .Where(name => !string.Equals(
+                        name,
+                        FileSystem.SaveFileService.FolderMarkerFileName,
+                        StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 var baseName = $"{fileName}{extension}";
@@ -38,7 +42,7 @@ namespace SaveManager.Infrastructure.Services
             {
                 var baseName = Path.GetFileName(game.SavePath.TrimEnd(Path.DirectorySeparatorChar));
 
-                var existingSaves = Directory.GetDirectories(profile.FolderPath)
+                var existingSaves = Directory.GetDirectories(targetDirectory)
                     .Select(Path.GetFileName)
                     .ToList();
 

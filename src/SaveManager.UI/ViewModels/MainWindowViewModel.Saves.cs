@@ -14,14 +14,56 @@ namespace SaveManager.UI.ViewModels
 
             try
             {
-                var save = _createSave.Execute(SelectedProfile, SelectedGame);
+                var targetFolder = TargetFolderForNewContent();
+
+                var save = _createSave.Execute(SelectedProfile, SelectedGame, targetFolder);
                 _allSaves.Add(save);
+
+                if (targetFolder.Length > 0)
+                    _expandedFolders.Add(targetFolder);
+
                 RebuildSaves();
+
+                SelectedNode = FindSaveNode(SaveTree, save.SavePath);
+
                 await Toast.Show("Save created successfully!", isSuccess: true);
             }
             catch (Exception ex)
             {
                 await Toast.Show($"Failed to create save: {ex.Message}", isSuccess: false);
+            }
+        }
+
+        private string TargetFolderForNewContent() =>
+            SelectedFolder?.RelativePath
+            ?? SelectedSave?.RelativeFolderPath
+            ?? string.Empty;
+
+        public async Task MoveSave(Save save, string relativeTargetFolderPath)
+        {
+            if (SelectedGame == null || SelectedProfile == null)
+                return;
+
+            if (string.Equals(save.RelativeFolderPath, relativeTargetFolderPath, PathComparison))
+                return;
+
+            try
+            {
+                var moved = _moveSave.Execute(
+                    SelectedProfile, SelectedGame, save, relativeTargetFolderPath);
+
+                if (relativeTargetFolderPath.Length > 0)
+                    _expandedFolders.Add(relativeTargetFolderPath);
+
+                await RefreshSaves();
+
+                SelectedNode = FindSaveNode(SaveTree, moved.SavePath);
+
+                await Toast.Show("Save moved successfully!", isSuccess: true);
+            }
+            catch (Exception ex)
+            {
+                await Toast.Show($"Failed to move save: {ex.Message}", isSuccess: false);
             }
         }
 

@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.Input;
-using SaveManager.Domain.Entities;
 using SaveManager.Domain.Enums;
 using SaveManager.UI.HotKeys;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace SaveManager.UI.ViewModels
@@ -71,18 +71,17 @@ namespace SaveManager.UI.ViewModels
             if (!CanMoveSaveSelection)
                 return;
 
-            var index = SelectedSave is null ? -1 : Saves.IndexOf(SelectedSave);
+            var nodes = VisibleNodes();
+            var index = IndexOfSelection(nodes);
 
             if (index < 0)
             {
-                SelectedSave = Saves[0];
+                SelectedNode = nodes[0];
                 return;
             }
 
-            if (index + 1 >= Saves.Count)
-                return;
-
-            SelectedSave = Saves[index + 1];
+            if (index + 1 < nodes.Count)
+                SelectedNode = nodes[index + 1];
         }
 
         [RelayCommand]
@@ -91,18 +90,68 @@ namespace SaveManager.UI.ViewModels
             if (!CanMoveSaveSelection)
                 return;
 
-            var index = SelectedSave is null ? -1 : Saves.IndexOf(SelectedSave);
+            var nodes = VisibleNodes();
+            var index = IndexOfSelection(nodes);
 
             if (index <= 0)
             {
-                SelectedSave = Saves[0];
+                SelectedNode = nodes[0];
                 return;
             }
 
-            SelectedSave = Saves[index - 1];
+            SelectedNode = nodes[index - 1];
         }
 
         private bool CanMoveSaveSelection =>
-            SelectedGame != null && SelectedProfile != null && Saves.Count > 0;
+            SelectedGame != null && SelectedProfile != null && SaveTree.Count > 0;
+
+        private List<SaveTreeNode> VisibleNodes()
+        {
+            var nodes = new List<SaveTreeNode>();
+
+            AddVisibleNodes(SaveTree, nodes);
+
+            return nodes;
+        }
+
+        private static void AddVisibleNodes(
+            IEnumerable<SaveTreeNode> source, List<SaveTreeNode> into)
+        {
+            foreach (var node in source)
+            {
+                into.Add(node);
+
+                if (node.IsFolder && node.IsExpanded)
+                    AddVisibleNodes(node.Children, into);
+            }
+        }
+
+        private int IndexOfSelection(List<SaveTreeNode> nodes)
+        {
+            if (SelectedNode is not { } selected)
+                return -1;
+
+            var index = nodes.IndexOf(selected);
+
+            if (index >= 0)
+                return index;
+
+            var folderPath = selected.IsFolder
+                ? ParentOf(selected.RelativePath)
+                : selected.Save?.RelativeFolderPath ?? string.Empty;
+
+            while (folderPath.Length > 0)
+            {
+                var ancestor = nodes.Find(node =>
+                    node.IsFolder && string.Equals(node.RelativePath, folderPath, PathComparison));
+
+                if (ancestor is not null)
+                    return nodes.IndexOf(ancestor);
+
+                folderPath = ParentOf(folderPath);
+            }
+
+            return -1;
+        }
     }
 }

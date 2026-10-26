@@ -5,5 +5,6 @@
         public string Name { get; set; } = string.Empty;
         public string SavePath { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public string RelativeFolderPath { get; set; } = string.Empty;
     }
 }

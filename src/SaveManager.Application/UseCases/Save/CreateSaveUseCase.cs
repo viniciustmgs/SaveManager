@@ -11,9 +11,12 @@ namespace SaveManager.Application.UseCases.Save
             _saveFileService = saveFileService;
         }
 
-        public Domain.Entities.Save Execute(Domain.Entities.Profile profile, Domain.Entities.Game game)
+        public Domain.Entities.Save Execute(
+            Domain.Entities.Profile profile,
+            Domain.Entities.Game game,
+            string relativeFolderPath)
         {
-            return _saveFileService.CreateSave(profile, game);
+            return _saveFileService.CreateSave(profile, game, relativeFolderPath);
         }
     }
 }

@@ -8,8 +8,11 @@ using SaveManager.Domain.Entities;
 using SaveManager.Domain.Enums;
 using SaveManager.UI.DI;
 using SaveManager.UI.HotKeys;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 
 namespace SaveManager.UI.ViewModels
 {
@@ -18,6 +21,11 @@ namespace SaveManager.UI.ViewModels
         private readonly GetGamesUseCase _getGames;
         private readonly GetProfilesUseCase _getProfiles;
         private readonly GetSavesUseCase _getSaves;
+        private readonly GetSaveFoldersUseCase _getSaveFolders;
+        private readonly CreateSaveFolderUseCase _createSaveFolder;
+        private readonly RenameSaveFolderUseCase _renameSaveFolder;
+        private readonly DeleteSaveFolderUseCase _deleteSaveFolder;
+        private readonly MoveSaveUseCase _moveSave;
         private readonly SortSavesUseCase _sortSaves;
         private readonly FilterSavesUseCase _filterSaves;
         private readonly CreateSaveUseCase _createSave;
@@ -57,12 +65,26 @@ namespace SaveManager.UI.ViewModels
         }
 
         private readonly List<Save> _allSaves = [];
+        private readonly List<SaveFolder> _allFolders = [];
+        private readonly HashSet<string> _expandedFolders = new(PathComparer);
+
+        private static readonly StringComparer PathComparer =
+            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal;
 
         private ObservableCollection<Save> _saves = [];
         public ObservableCollection<Save> Saves
         {
             get => _saves;
             set => SetProperty(ref _saves, value);
+        }
+
+        private ObservableCollection<SaveTreeNode> _saveTree = [];
+        public ObservableCollection<SaveTreeNode> SaveTree
+        {
+            get => _saveTree;
+            set => SetProperty(ref _saveTree, value);
         }
 
         private SaveSortOption _selectedSortOption = SaveSortOption.Created;
@@ -98,30 +120,206 @@ namespace SaveManager.UI.ViewModels
 
         private void RebuildSaves()
         {
-            var selected = SelectedSave;
+            CaptureExpansion(SaveTree, _expandedFolders);
 
-            var visible = _sortSaves.Execute(
-                _filterSaves.Execute(_allSaves, SaveSearchText),
-                SelectedSortOption);
+            var selectedSavePath = SelectedSave?.SavePath;
+            var selectedFolderPath = SelectedNode?.IsFolder == true
+                ? SelectedNode.RelativePath
+                : null;
 
-            Saves.Clear();
+            var term = SaveSearchText?.Trim() ?? string.Empty;
+            var searchActive = term.Length > 0;
 
-            foreach (var save in visible)
-                Saves.Add(save);
+            bool NameMatches(string name) =>
+                !searchActive || name.Contains(term, StringComparison.OrdinalIgnoreCase);
 
-            if (selected is not null && visible.Contains(selected))
-                SelectedSave = selected;
-            else if (selected is not null)
+            bool PathMatches(string relativePath) =>
+                !searchActive || Segments(relativePath).Any(NameMatches);
+
+            var visibleSaves = _allSaves
+                .Where(save => NameMatches(save.Name) || PathMatches(save.RelativeFolderPath))
+                .ToList();
+
+            var foldersWithVisibleSaves = new HashSet<string>(PathComparer);
+            foreach (var save in visibleSaves)
+                AddAncestors(save.RelativeFolderPath, foldersWithVisibleSaves);
+
+            var visibleFolders = _allFolders
+                .Where(folder => PathMatches(folder.RelativePath)
+                                 || foldersWithVisibleSaves.Contains(folder.RelativePath))
+                .ToList();
+
+            var savesByFolder = visibleSaves
+                .GroupBy(save => save.RelativeFolderPath, PathComparer)
+                .ToDictionary(group => group.Key, group => group.ToList(), PathComparer);
+
+            var nodesByPath = new Dictionary<string, SaveTreeNode>(PathComparer);
+
+            foreach (var folder in visibleFolders.OrderBy(folder => folder.RelativePath, PathComparer))
+            {
+                nodesByPath[folder.RelativePath] = SaveTreeNode.ForFolder(
+                    folder, _expandedFolders.Contains(folder.RelativePath));
+            }
+
+            var roots = new List<SaveTreeNode>();
+
+            foreach (var folder in visibleFolders.OrderBy(folder => folder.RelativePath, PathComparer))
+            {
+                var node = nodesByPath[folder.RelativePath];
+                var parentRelative = ParentOf(folder.RelativePath);
+
+                if (parentRelative.Length == 0)
+                    roots.Add(node);
+                else if (nodesByPath.TryGetValue(parentRelative, out var parentNode))
+                    parentNode.Children.Add(node);
+            }
+
+            foreach (var (relative, saves) in savesByFolder)
+            {
+                IList<SaveTreeNode>? target = relative.Length == 0
+                    ? roots
+                    : nodesByPath.TryGetValue(relative, out var folderNode)
+                        ? folderNode.Children
+                        : null;
+
+                if (target is null)
+                    continue;
+
+                foreach (var save in _sortSaves.Execute(saves, SelectedSortOption))
+                    target.Add(SaveTreeNode.ForSave(save));
+            }
+
+            var rootNodes = new ObservableCollection<SaveTreeNode>(roots);
+            SortLevel(rootNodes);
+
+            foreach (var node in nodesByPath.Values)
+                SortLevel(node.Children);
+
+            var flat = new List<Save>();
+            Flatten(rootNodes, flat);
+
+            Saves = new ObservableCollection<Save>(flat);
+            SaveTree = rootNodes;
+
+            if (selectedFolderPath is not null
+                && nodesByPath.TryGetValue(selectedFolderPath, out var restoredFolder))
+            {
+                SelectedNode = restoredFolder;
+            }
+            else if (selectedSavePath is not null
+                     && FindSaveNode(rootNodes, selectedSavePath) is { } restoredSave)
+            {
+                SelectedNode = restoredSave;
+            }
+            else
+            {
+                SelectedNode = null;
                 SelectedSave = null;
+            }
         }
 
-        private void SetAllSaves(IEnumerable<Save> saves)
+        private void SetContents(IEnumerable<Save> saves, IEnumerable<SaveFolder> folders)
         {
             _allSaves.Clear();
             _allSaves.AddRange(saves);
 
+            _allFolders.Clear();
+            _allFolders.AddRange(folders);
+
             RebuildSaves();
         }
+
+        private static void CaptureExpansion(
+            IEnumerable<SaveTreeNode> nodes, HashSet<string> into)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.IsFolder)
+                {
+                    if (node.IsExpanded)
+                        into.Add(node.RelativePath);
+                    else
+                        into.Remove(node.RelativePath);
+                }
+
+                CaptureExpansion(node.Children, into);
+            }
+        }
+
+        private static void AddAncestors(string relativePath, HashSet<string> into)
+        {
+            var current = relativePath;
+
+            while (!string.IsNullOrEmpty(current))
+            {
+                into.Add(current);
+                current = ParentOf(current);
+            }
+        }
+
+        private static IEnumerable<string> Segments(string relativePath) =>
+            string.IsNullOrEmpty(relativePath)
+                ? Array.Empty<string>()
+                : relativePath.Split(
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+                    StringSplitOptions.RemoveEmptyEntries);
+
+        private static string ParentOf(string relativePath) =>
+            string.IsNullOrEmpty(relativePath)
+                ? string.Empty
+                : Path.GetDirectoryName(relativePath) ?? string.Empty;
+
+        private static void SortLevel(ObservableCollection<SaveTreeNode> nodes)
+        {
+            var folders = nodes
+                .Where(node => node.IsFolder)
+                .OrderBy(node => node.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var saves = nodes.Where(node => !node.IsFolder).ToList();
+
+            nodes.Clear();
+
+            foreach (var folder in folders)
+                nodes.Add(folder);
+
+            foreach (var save in saves)
+                nodes.Add(save);
+        }
+
+        private static void Flatten(IEnumerable<SaveTreeNode> nodes, List<Save> into)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Save is { } save)
+                    into.Add(save);
+
+                Flatten(node.Children, into);
+            }
+        }
+
+        private static SaveTreeNode? FindSaveNode(
+            IEnumerable<SaveTreeNode> nodes, string savePath)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Save is { } save
+                    && string.Equals(save.SavePath, savePath, PathComparison))
+                {
+                    return node;
+                }
+
+                if (FindSaveNode(node.Children, savePath) is { } found)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private static readonly StringComparison PathComparison =
+            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
 
         private Game? _selectedGame;
         public Game? SelectedGame
@@ -135,9 +333,10 @@ namespace SaveManager.UI.ViewModels
                     OnPropertyChanged(nameof(CanManageSaves));
 
                     Profiles = [];
-                    SetAllSaves([]);
+                    _expandedFolders.Clear();
+                    SetContents([], []);
                     SelectedProfile = null;
-                    SelectedSave = null;
+                    SelectedNode = null;
 
                     _ = RefreshProfiles();
                 }
@@ -155,13 +354,37 @@ namespace SaveManager.UI.ViewModels
                     OnPropertyChanged(nameof(IsProfileSelected));
                     OnPropertyChanged(nameof(CanManageSaves));
 
-                    SetAllSaves([]);
-                    SelectedSave = null;
+                    _expandedFolders.Clear();
+                    SetContents([], []);
+                    SelectedNode = null;
 
                     _ = RefreshSaves();
                 }
             }
         }
+
+        private SaveTreeNode? _selectedNode;
+        public SaveTreeNode? SelectedNode
+        {
+            get => _selectedNode;
+            set
+            {
+                if (!SetProperty(ref _selectedNode, value))
+                    return;
+
+                if (!ReferenceEquals(_selectedSave, value?.Save))
+                {
+                    _selectedSave = value?.Save;
+                    OnPropertyChanged(nameof(SelectedSave));
+                    OnPropertyChanged(nameof(IsSaveSelected));
+                }
+
+                OnPropertyChanged(nameof(SelectedFolder));
+                OnPropertyChanged(nameof(IsFolderSelected));
+            }
+        }
+
+        public SaveFolder? SelectedFolder => SelectedNode?.Folder;
 
         private Save? _selectedSave;
         public Save? SelectedSave
@@ -169,8 +392,20 @@ namespace SaveManager.UI.ViewModels
             get => _selectedSave;
             set
             {
-                if (SetProperty(ref _selectedSave, value))
-                    OnPropertyChanged(nameof(IsSaveSelected));
+                if (!SetProperty(ref _selectedSave, value))
+                    return;
+
+                OnPropertyChanged(nameof(IsSaveSelected));
+
+                var node = value is null ? null : FindSaveNode(SaveTree, value.SavePath);
+
+                if (ReferenceEquals(_selectedNode, node))
+                    return;
+
+                _selectedNode = node;
+                OnPropertyChanged(nameof(SelectedNode));
+                OnPropertyChanged(nameof(SelectedFolder));
+                OnPropertyChanged(nameof(IsFolderSelected));
             }
         }
 
@@ -178,12 +413,18 @@ namespace SaveManager.UI.ViewModels
         public bool IsProfileSelected => SelectedProfile != null;
         public bool CanManageSaves => SelectedGame != null && SelectedProfile != null;
         public bool IsSaveSelected => SelectedSave != null;
+        public bool IsFolderSelected => SelectedNode?.IsFolder == true;
 
         public MainWindowViewModel()
         {
             _getGames = AppServiceProvider.GetService<GetGamesUseCase>();
             _getProfiles = AppServiceProvider.GetService<GetProfilesUseCase>();
             _getSaves = AppServiceProvider.GetService<GetSavesUseCase>();
+            _getSaveFolders = AppServiceProvider.GetService<GetSaveFoldersUseCase>();
+            _createSaveFolder = AppServiceProvider.GetService<CreateSaveFolderUseCase>();
+            _renameSaveFolder = AppServiceProvider.GetService<RenameSaveFolderUseCase>();
+            _deleteSaveFolder = AppServiceProvider.GetService<DeleteSaveFolderUseCase>();
+            _moveSave = AppServiceProvider.GetService<MoveSaveUseCase>();
             _sortSaves = AppServiceProvider.GetService<SortSavesUseCase>();
             _filterSaves = AppServiceProvider.GetService<FilterSavesUseCase>();
             _createSave = AppServiceProvider.GetService<CreateSaveUseCase>();
@@ -213,10 +454,10 @@ namespace SaveManager.UI.ViewModels
         {
             Games = new ObservableCollection<Game>(_getGames.Execute());
             Profiles = [];
-            SetAllSaves([]);
+            SetContents([], []);
             SelectedGame = null;
             SelectedProfile = null;
-            SelectedSave = null;
+            SelectedNode = null;
 
             _selectedGameLoadVersion++;
             _selectedProfileLoadVersion++;

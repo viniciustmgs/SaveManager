@@ -223,30 +223,55 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- save list -->
-                <ListBox x:Name="SavesList"
-                         Margin="12,8,12,0"
-                         Background="#424242"
-                         ItemsSource="{Binding Saves}"
-                         SelectedItem="{Binding SelectedSave}">
-                    <ListBox.Styles>
-                        <Style Selector="ListBoxItem">
+                <!-- save tree -->
+                <TreeView x:Name="SavesTree"
+                          Margin="12,8,12,0"
+                          Background="#424242"
+                          ItemsSource="{Binding SaveTree}"
+                          SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                          DragDrop.AllowDrop="True">
+                    <TreeView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="New Folder"
+                                      IsEnabled="{Binding CanManageSaves}"
+                                      Click="OnNewFolderInEmptyAreaClick" />
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
+                    <TreeView.Resources>
+                        <x:Double x:Key="TreeViewItemIndent">10</x:Double>
+                    </TreeView.Resources>
+                    <TreeView.Styles>
+                        <Style Selector="TreeViewItem /template/ Panel#PART_ExpandCollapseChevronContainer:not(:disabled)">
+                            <Setter Property="Margin" Value="0,0,4,0" />
+                        </Style>
+                        <Style Selector="TreeViewItem">
+                            <Setter Property="IsExpanded"
+                                    Value="{ReflectionBinding IsExpanded, Mode=TwoWay}" />
                             <Setter Property="ContextMenu">
                                 <ContextMenu>
-                                    <MenuItem Header="Rename" Click="OnRenameSaveClick" />
-                                    <MenuItem Header="Delete" Click="OnDeleteSaveClick" />
+                                    <MenuItem Header="New Folder" Click="OnNewFolderHereClick" />
+                                    <MenuItem Header="Rename" Click="OnRenameNodeClick" />
+                                    <MenuItem Header="Delete" Click="OnDeleteNodeClick" />
                                 </ContextMenu>
                             </Setter>
                         </Style>
-                    </ListBox.Styles>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="domain:Save">
-                            <TextBlock Text="{Binding Name}"
-                                       FontSize="12"
-                                       Padding="4,3" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </TreeView.Styles>
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate x:DataType="vm:SaveTreeNode"
+                                          ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <material:MaterialIcon Kind="Folder"
+                                                       Width="16"
+                                                       Height="16"
+                                                       Foreground="#FFC107"
+                                                       IsVisible="{Binding IsFolder}" />
+                                <TextBlock Text="{Binding Name}"
+                                           FontSize="12"
+                                           Padding="0,3" />
+                            </StackPanel>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
 
             </DockPanel>
 
@@ -1217,6 +1242,200 @@
                 </Grid>
             </Border>
 
+            <!-- create folder overlay -->
+            <Border IsVisible="{Binding IsCreateFolderDialogOpen}"
+                    Background="#AA000000"
+                    ZIndex="104">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="360"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+
+                            <TextBlock Text="New Folder"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Name:" />
+                                <TextBox Text="{Binding NewFolderName}"
+                                         Background="#333333" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding CreateFolderErrorMessage}"
+                                       Foreground="#F44336"
+                                       IsVisible="{Binding HasCreateFolderError}"
+                                       TextWrapping="Wrap" />
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="110"
+                                        Command="{Binding CancelCreateFolderCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="Close"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#F44336" />
+                                        <TextBlock Text="Cancel" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="110"
+                                        IsEnabled="{Binding CanConfirmNewFolder}"
+                                        Command="{Binding ConfirmCreateFolderCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="FolderPlus"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#4CAF50" />
+                                        <TextBlock Text="Create" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- rename folder overlay -->
+            <Border IsVisible="{Binding IsRenameFolderDialogOpen}"
+                    Background="#AA000000"
+                    ZIndex="104">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="360"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+
+                            <TextBlock Text="Rename Folder"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Name:" />
+                                <TextBox Text="{Binding RenameFolderName}"
+                                         Background="#333333" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding RenameFolderErrorMessage}"
+                                       Foreground="#F44336"
+                                       IsVisible="{Binding HasRenameFolderError}"
+                                       TextWrapping="Wrap" />
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="110"
+                                        Command="{Binding CancelRenameFolderCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="Close"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#F44336" />
+                                        <TextBlock Text="Cancel" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="110"
+                                        IsEnabled="{Binding CanConfirmRenameFolder}"
+                                        Command="{Binding ConfirmRenameFolderCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="Pencil"
+                                                               Width="16"
+                                                               Height="16"
+                                                               Foreground="#4CAF50" />
+                                        <TextBlock Text="Rename" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- delete folder confirm overlay -->
+            <Border IsVisible="{Binding IsDeleteFolderConfirmOpen}"
+                    Background="#AA000000"
+                    ZIndex="104">
+
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="380"
+                      Margin="24">
+
+                    <Border Background="#282828"
+                            CornerRadius="10"
+                            Padding="16"
+                            BorderBrush="#3A3A3A"
+                            BorderThickness="1">
+
+                        <StackPanel Spacing="12">
+
+                            <TextBlock Text="Delete Folder"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+
+                            <TextBlock Text="{Binding DeleteFolderConfirmMessage}"
+                                       TextWrapping="Wrap" />
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Width="90"
+                                        Command="{Binding CancelDeleteFolderCommand}">
+                                    <TextBlock Text="Cancel" />
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Width="90"
+                                        Command="{Binding ConfirmDeleteFolderCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <material:MaterialIcon Kind="TrashCan" Width="16" Height="16" Foreground="#F44336" />
+                                        <TextBlock Text="Delete" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
             <!-- how to use -->
             <Border IsVisible="{Binding IsHowToUseOpen}"
                     Background="#AA000000"
@@ -1268,6 +1487,7 @@
                                         <TextBlock TextWrapping="Wrap">
                                             <Run Text="For each game you can create multiple profiles to separate the saves (e.g. one profile for any%, one for all bosses, etc)."/>
                                             <Run Text="&#10;Each profile will create it's own folder inside the backup folder, and that's where the actual copies will be. Be aware of that when choosing the backup folder."/>
+                                            <Run Text="&#10;On each profile you can also create folders to further organize your saves."/>
                                         </TextBlock>
                                         <TextBlock Text="The buttons" FontWeight="Bold" FontSize="16"/>
                                         <TextBlock TextWrapping="Wrap">
@@ -1275,7 +1495,7 @@
                                             <Run Text="Creates a copy of the game save"/>
                                             <LineBreak/>
                                             <Run Text="• Load Save:" FontWeight="SemiBold"/>
-                                            <Run Text="Loads the currently selected copy, replacing the game save with it"/>
+                                            <Run Text="Loads the currently selected copy, replacing the game save"/>
                                             <LineBreak/>
                                             <Run Text="• Replace Save:" FontWeight="SemiBold"/>
                                             <Run Text="Creates a copy of the game save that automatically replaces the currently selected copy."/>
@@ -1293,8 +1513,6 @@
                                             <Run Text="~/.config/SaveManager/config.json"/>
                                         </TextBlock>
                                         <TextBlock Text="Limitations" FontWeight="Bold" FontSize="16"/>
-                                        <TextBlock Text="You can't create folders within the profile, if you want to add another layer of organization. This is a feature that I intend to add in the future."
-                                                   TextWrapping="Wrap"/>
                                         <TextBlock Text="No hotkeys for linux. I might try to add it in the future."
                                                    TextWrapping="Wrap"/>
                                         <TextBlock Text="If the game uses multiple files for the save but they're not in a dedicated folder, but instead mixed in the middle of other game files. This could be an issue if there are big files within the folder that are unrelated. I don't have intentions of adding a feature for that for now, since practically all games will have a dedicated folder for the save files."
@@ -1406,6 +1624,31 @@
             <views:ToastView Toast="{Binding Toast}"
                              VerticalAlignment="Center"
                              HorizontalAlignment="Center" />
+
+            <!-- drag ghost -->
+            <Canvas x:Name="DragGhostLayer"
+                    ZIndex="100"
+                    IsHitTestVisible="False"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                <Border x:Name="DragGhost"
+                        IsVisible="False"
+                        Background="#3A3A3A"
+                        BorderBrush="#686868"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="8,4">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <material:MaterialIcon Kind="File"
+                                               Width="14"
+                                               Height="14"
+                                               Foreground="#BDBDBD" />
+                        <TextBlock x:Name="DragGhostText"
+                                   FontSize="12"
+                                   Foreground="White" />
+                    </StackPanel>
+                </Border>
+            </Canvas>
         </Grid>
     </DockPanel>
 </Window>

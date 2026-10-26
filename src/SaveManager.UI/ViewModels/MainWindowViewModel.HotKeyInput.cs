@@ -12,6 +12,9 @@ namespace SaveManager.UI.ViewModels
             || IsEditProfileFormOpen
             || IsDeleteProfileConfirmOpen
             || IsRenameSaveDialogOpen
+            || IsCreateFolderDialogOpen
+            || IsRenameFolderDialogOpen
+            || IsDeleteFolderConfirmOpen
             || IsDeleteSaveConfirmOpen
             || IsSettingsDialogOpen
             || IsSettingsDiscardPromptOpen

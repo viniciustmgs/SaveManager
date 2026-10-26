@@ -110,7 +110,7 @@ namespace SaveManager.Infrastructure.Tests
         }
 
         private Domain.Entities.Save CreateOne() =>
-            _service.CreateSave(MakeProfile(), MakeGame());
+            _service.CreateSave(MakeProfile(), MakeGame(), string.Empty);
 
         private Profile MakeProfile() => new() { Name = "p", FolderPath = SavesPath };
 

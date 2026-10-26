@@ -1,12 +1,16 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:material="using:Material.Icons.Avalonia"
+             xmlns:chrome="using:Avalonia.Controls.Chrome"
              x:Class="SaveManager.UI.App"
              RequestedThemeVariant="Dark">
 
 	<Application.Styles>
 		<FluentTheme />
 		<material:MaterialIconStyles />
+		<Style Selector="chrome|WindowDrawnDecorations /template/ Border#PART_WindowBorder:not(:disabled)">
+			<Setter Property="BorderBrush" Value="#282828" />
+		</Style>
 		<Style Selector="Button">
             <Setter Property="Background" Value="#333333" />
             <Setter Property="BorderBrush" Value="#686868" />
