@@ -245,6 +245,8 @@
                             <Setter Property="Margin" Value="0,0,4,0" />
                         </Style>
                         <Style Selector="TreeViewItem">
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="MinHeight" Value="0" />
                             <Setter Property="IsExpanded"
                                     Value="{ReflectionBinding IsExpanded, Mode=TwoWay}" />
                             <Setter Property="ContextMenu">
@@ -267,7 +269,7 @@
                                                        IsVisible="{Binding IsFolder}" />
                                 <TextBlock Text="{Binding Name}"
                                            FontSize="12"
-                                           Padding="0,3" />
+                                           Padding="0,2" />
                             </StackPanel>
                         </TreeDataTemplate>
                     </TreeView.ItemTemplate>
